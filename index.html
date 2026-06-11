@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#4a7c59">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="App para estudiar botánica mediante el formato de examen Visu">
+<title>BotánicaVisu</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #4a7c59;
+  --green-light: #6b9e7a;
+  --green-dark: #2d5a3a;
+  --red: #c0392b;
+  --red-light: #e74c3c;
+  --gold: #d4a017;
+  --bg: #f5f0eb;
+  --card: #ffffff;
+  --text: #2c2c2c;
+  --text-light: #6b6b6b;
+  --border: #e0d8d0;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+html { font-size: 16px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+.screen { display: none; padding: 16px; max-width: 640px; margin: 0 auto; padding-bottom: 100px; }
+.screen.active { display: block; }
+h1, h2, h3 { font-weight: 600; line-height: 1.3; }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.3rem; margin-bottom: 12px; }
+i, .italic { font-style: italic; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 28px; border: none; border-radius: var(--radius-sm);
+  font-size: 1rem; font-weight: 600; cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+  text-decoration: none; color: white; background: var(--green);
+  -webkit-tap-highlight-color: transparent; user-select: none;
+}
+.btn:active { transform: scale(0.96); }
+.btn-green { background: var(--green); }
+.btn-green:hover { background: var(--green-dark); }
+.btn-red { background: var(--red); }
+.btn-red:hover { background: #a93226; }
+.btn-gold { background: var(--gold); }
+.btn-outline { background: transparent; color: var(--green); border: 2px solid var(--green); }
+.btn-outline:hover { background: var(--green); color: white; }
+.btn-sm { padding: 10px 18px; font-size: 0.85rem; }
+.btn-block { width: 100%; }
+.btn-back {
+  background: none; border: none; font-size: 1.2rem; cursor: pointer;
+  padding: 8px; color: var(--text); display: flex; align-items: center; gap: 4px;
+  margin-bottom: 12px; font-weight: 600;
+}
+.card {
+  background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px;
+}
+.photo-container {
+  width: 100%; border-radius: var(--radius-sm); overflow: hidden;
+  background: #e8e2da; position: relative; aspect-ratio: 4/3;
+  display: flex; align-items: center; justify-content: center;
+}
+.photo-container img {
+  width: 100%; height: 100%; object-fit: contain;
+  transition: opacity 0.3s;
+}
+.photo-container .placeholder {
+  color: var(--text-light); font-size: 0.9rem; text-align: center; padding: 20px;
+}
+.header {
+  background: var(--green); color: white; padding: 16px 20px;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.header h1 { font-size: 1.2rem; }
+.header-stats { display: flex; gap: 16px; font-size: 0.85rem; }
+.header-stats span { display: flex; align-items: center; gap: 4px; }
+.streak-badge { background: var(--gold); color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+
+/* HOME */
+.home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.home-card {
+  background: var(--card); border-radius: var(--radius); padding: 24px 16px;
+  text-align: center; cursor: pointer; box-shadow: var(--shadow);
+  transition: transform 0.2s; border: 2px solid transparent;
+}
+.home-card:active { transform: scale(0.96); }
+.home-card .icon { font-size: 2.2rem; margin-bottom: 8px; }
+.home-card h3 { font-size: 0.95rem; margin-bottom: 4px; }
+.home-card p { font-size: 0.78rem; color: var(--text-light); }
+
+/* STUDY MODE */
+.family-select { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.family-chip {
+  padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+  font-size: 0.8rem; cursor: pointer; background: var(--card);
+  transition: all 0.2s;
+}
+.family-chip.active { background: var(--green); color: white; border-color: var(--green); }
+.study-card .photo-container { margin-bottom: 16px; }
+.study-info { display: none; }
+.study-info.revealed { display: block; }
+.study-info h3 { margin-bottom: 6px; }
+.study-info .tag {
+  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  font-size: 0.75rem; font-weight: 600; margin-right: 4px; margin-bottom: 4px;
+}
+.tag-gimno { background: #d4edda; color: #155724; }
+.tag-angio { background: #d1ecf1; color: #0c5460; }
+.study-actions { display: flex; gap: 8px; margin-top: 12px; }
+.progress-dots { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
+.dot.knew { background: var(--green); }
+.dot.didnt { background: var(--red); }
+.dot.current { border: 2px solid var(--green); }
+
+/* LEVELS */
+.level-select { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+.level-card {
+  background: var(--card); border-radius: var(--radius); padding: 20px;
+  box-shadow: var(--shadow); display: flex; align-items: center; gap: 16px;
+  cursor: pointer; transition: all 0.2s; border: 2px solid transparent;
+}
+.level-card.locked { opacity: 0.5; cursor: not-allowed; }
+.level-card.locked:active { transform: none; }
+.level-card .level-num {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; font-weight: 700; color: white; flex-shrink: 0;
+}
+.level-card .level-info { flex: 1; }
+.level-card .level-info h3 { font-size: 1rem; }
+.level-card .level-info p { font-size: 0.82rem; color: var(--text-light); }
+.level-req { font-size: 0.78rem; color: var(--text-light); margin-top: 4px; }
+.options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.option-btn {
+  padding: 14px 10px; border: 2px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--card); cursor: pointer; font-size: 0.9rem;
+  transition: all 0.2s; text-align: center; -webkit-tap-highlight-color: transparent;
+}
+.option-btn:active { transform: scale(0.97); }
+.option-btn.selected { border-color: var(--green); background: #e8f5e9; }
+.option-btn.correct { border-color: var(--green); background: #c8e6c9; color: #2e7d32; }
+.option-btn.wrong { border-color: var(--red); background: #ffcdd2; color: #c62828; }
+.option-btn:disabled { cursor: default; opacity: 0.7; }
+.option-btn:disabled:active { transform: none; }
+
+/* EXAM */
+.exam-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; }
+.lives { display: flex; gap: 4px; }
+.heart { font-size: 1.2rem; }
+.heart.lost { opacity: 0.2; }
+.results-list { max-height: 400px; overflow-y: auto; }
+.result-item {
+  padding: 12px; border-radius: var(--radius-sm); margin-bottom: 8px;
+  border-left: 4px solid var(--green);
+}
+.result-item.wrong { border-left-color: var(--red); }
+.result-item h4 { font-size: 0.9rem; }
+.result-item .detail { font-size: 0.8rem; color: var(--text-light); }
+
+/* RANDOM */
+.streak-display { text-align: center; padding: 20px; }
+.streak-number { font-size: 3rem; font-weight: 700; color: var(--gold); }
+.streak-label { font-size: 0.9rem; color: var(--text-light); }
+.best-streak { font-size: 0.85rem; color: var(--text-light); margin-top: 8px; }
+
+/* PROGRESS BAR */
+.progress-container { margin: 12px 0; }
+.progress-bar {
+  height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: var(--green); border-radius: 4px;
+  transition: width 0.3s;
+}
+.progress-label { font-size: 0.82rem; color: var(--text-light); margin-top: 4px; }
+
+/* ANIMATIONS */
+.fade-in { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.slide-up { animation: slideUp 0.3s ease; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.flip-in { animation: flipIn 0.4s ease; }
+@keyframes flipIn { from { opacity: 0; transform: rotateX(-90deg); } to { opacity: 1; transform: rotateX(0); } }
+
+/* SCORE OVERLAY */
+.score-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); display: none; align-items: center;
+  justify-content: center; z-index: 200; padding: 20px;
+}
+.score-overlay.active { display: flex; }
+.score-modal {
+  background: white; border-radius: var(--radius); padding: 32px;
+  max-width: 400px; width: 100%; text-align: center;
+  animation: slideUp 0.3s ease;
+}
+.score-modal h2 { font-size: 1.5rem; margin-bottom: 8px; }
+.score-modal .big-score { font-size: 3rem; font-weight: 700; margin: 12px 0; }
+.score-modal .actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+
+/* RESPONSIVE */
+@media (min-width: 640px) {
+  .home-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .screen { padding: 24px; }
+  .options-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1024px) {
+  .screen { max-width: 800px; }
+}
+@media (max-width: 380px) {
+  .home-grid { gap: 8px; }
+  .home-card { padding: 16px 10px; }
+  .home-card .icon { font-size: 1.8rem; }
+  .options-grid { grid-template-columns: 1fr; }
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* FEEDBACK FLASH */
+.feedback-flash {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  padding: 20px 40px; border-radius: var(--radius); font-size: 1.2rem;
+  font-weight: 700; z-index: 150; pointer-events: none;
+  animation: flashAnim 0.8s ease forwards;
+}
+.feedback-flash.correct { background: #c8e6c9; color: #2e7d32; }
+.feedback-flash.wrong { background: #ffcdd2; color: #c62828; }
+@keyframes flashAnim {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  40% { transform: translate(-50%, -50%) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -60%); }
+}
+</style>
+</head>
+<body>
+
+<div class="header" id="appHeader">
+  <h1 id="headerTitle">BotánicaVisu</h1>
+  <div class="header-stats">
+    <span id="streakDisplay">🔥 0</span>
+    <span id="bestDisplay">🏆 0</span>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen active" id="screenHome">
+  <h2 style="margin-top:8px;">Elige un modo</h2>
+  <div class="home-grid">
+    <div class="home-card" onclick="startStudy()">
+      <div class="icon">📖</div>
+      <h3>Estudio</h3>
+      <p>Tarjetas con foto, nombre y características</p>
+    </div>
+    <div class="home-card" onclick="showLevels()">
+      <div class="icon">🎯</div>
+      <h3>Niveles</h3>
+      <p>3 niveles de dificultad progresiva</p>
+    </div>
+    <div class="home-card" onclick="startExam()">
+      <div class="icon">📝</div>
+      <h3>Examen Final</h3>
+      <p>Simulacro de 20 preguntas</p>
+    </div>
+    <div class="home-card" onclick="startRandom()">
+      <div class="icon">🎲</div>
+      <h3>Aleatorio</h3>
+      <p>Preguntas sin límite, racha y récord</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px;">
+    <div class="progress-label">Progreso total: <span id="totalProgressPct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="totalProgressBar" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- STUDY -->
+<div class="screen" id="screenStudy">
+  <button class="btn-back" onclick="goHome()">← Volver</button>
+  <h2>Modo Estudio</h2>
+  <div class="family-select" id="studyFamilyFilter"></div>
+  <div class="progress-dots" id="studyDots"></div>
+  <div class="card study-card fade-in" id="studyCard">
+    <div class="photo-container">
+      <img id="studyImage" src="" alt="" style="display:none">
+      <div class="placeholder" id="studyPlaceholder">Cargando imagen...</div>
+    </div>
+    <div class="study-info" id="studyInfo">
+      <h3 id="studyName"></h3>
+      <div style="margin:6px 0;">
+        <span class="tag" id="studyGroupTag"></span>
+        <span class="tag" id="studyFamilyTag" style="background:#e8e0d8;color:#5a4a3a;"></span>
+      </div>
+      <p id="studyCharact" style="font-size:0.9rem;color:var(--text-light);"></p>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;">
+      <button class="btn btn-green" id="studyRevealBtn" onclick="revealStudy()" style="flex:1">Revelar</button>
+    </div>
+    <div class="study-actions" id="studyActions" style="display:none;">
+      <button class="btn btn-green btn-sm" onclick="studyFeedback(true)" style="flex:1">✅ Lo sabía</button>
+      <button class="btn btn-red btn-sm" onclick="studyFeedback(false)" style="flex:1">❌ No lo sabía</button>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:8px;">
+    <span id="studyCounter" style="font-size:0.85rem;color:var(--text-light);"></span>
+  </div>
+</div>
+
+<!-- LEVELS -->
+<div class="screen" id="screenLevels">
+  <button class="btn-back" onclick="goHome()">← Volver</button>
+  <h2>Modo Niveles</h2>
+  <div class="level-select" id="levelList"></div>
+  <div id="levelGameArea" style="display:none;">
+    <div class="progress-dots" id="levelDots"></div>
+    <div class="card fade-in">
+      <div class="photo-container">
+        <img id="levelImage" src="" alt="" style="display:none">
+        <div class="placeholder" id="levelPlaceholder">Cargando imagen...</div>
+      </div>
+      <div id="levelQuestionArea">
+        <p id="levelQuestion" style="font-weight:600;margin-bottom:8px;"></p>
+        <div class="options-grid" id="levelOptions"></div>
+      </div>
+      <div id="levelFeedback" style="display:none;margin-top:12px;"></div>
+      <button class="btn btn-block" id="levelNextBtn" onclick="levelNext()" style="display:none;margin-top:12px;">Siguiente →</button>
+    </div>
+    <div style="text-align:center;margin-top:8px;">
+      <span id="levelCounter" style="font-size:0.85rem;color:var(--text-light);"></span>
+      <span id="levelScore" style="font-size:0.85rem;color:var(--text-light);margin-left:12px;"></span>
+    </div>
+  </div>
+</div>
+
+<!-- EXAM -->
+<div class="screen" id="screenExam">
+  <button class="btn-back" onclick="goHome()">← Volver</button>
+  <h2>Examen Final</h2>
+  <div id="examArea" style="display:block;">
+    <div class="exam-header">
+      <span id="examProgress">Pregunta 1/20</span>
+      <div class="lives" id="examLives">
+        <span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span>
+      </div>
+    </div>
+    <div class="card fade-in">
+      <div class="photo-container">
+        <img id="examImage" src="" alt="" style="display:none">
+        <div class="placeholder" id="examPlaceholder">Cargando imagen...</div>
+      </div>
+      <div id="examQuestionArea">
+        <p style="font-weight:600;margin-bottom:8px;">Nombre científico + Familia + Grupo:</p>
+        <div class="options-grid" id="examOptions"></div>
+      </div>
+      <div id="examFeedback" style="display:none;margin-top:12px;"></div>
+      <button class="btn btn-block" id="examNextBtn" onclick="examNext()" style="display:none;margin-top:12px;">Siguiente →</button>
+    </div>
+  </div>
+  <div id="examResults" style="display:none;"></div>
+</div>
+
+<!-- RANDOM -->
+<div class="screen" id="screenRandom">
+  <button class="btn-back" onclick="goHome()">← Volver</button>
+  <h2>Modo Aleatorio</h2>
+  <div class="streak-display">
+    <div class="streak-number" id="randomStreakNum">0</div>
+    <div class="streak-label">racha actual</div>
+    <div class="best-streak">🏆 Récord: <span id="randomBestNum">0</span></div>
+  </div>
+  <div class="card fade-in">
+    <div class="photo-container">
+      <img id="randomImage" src="" alt="" style="display:none">
+      <div class="placeholder" id="randomPlaceholder">Cargando imagen...</div>
+    </div>
+    <div id="randomQuestionArea">
+      <div class="options-grid" id="randomOptions"></div>
+    </div>
+    <div id="randomFeedback" style="display:none;margin-top:12px;"></div>
+    <button class="btn btn-block" id="randomNextBtn" onclick="randomNext()" style="display:none;margin-top:12px;">Siguiente →</button>
+  </div>
+  <div style="text-align:center;margin-top:8px;">
+    <button class="btn btn-red btn-sm" onclick="goHome()">Terminar sesión</button>
+  </div>
+</div>
+
+<!-- SCORE OVERLAY -->
+<div class="score-overlay" id="scoreOverlay">
+  <div class="score-modal" id="scoreModal">
+    <h2 id="scoreTitle">Resultado</h2>
+    <div class="big-score" id="scoreBig">0/0</div>
+    <p id="scoreDetail" style="color:var(--text-light);"></p>
+    <div class="actions" id="scoreActions"></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+// ========== UTILITIES ==========
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickRandom(arr, n) {
+  return shuffle(arr).slice(0, n);
+}
+
+function getFamilies() {
+  const f = new Set();
+  especies.forEach(e => f.add(e.familia));
+  return [...f].sort();
+}
+
+function getSpeciesByFamily(familia) {
+  return especies.filter(e => e.familia === familia);
+}
+
+function saveProgress(key, val) {
+  try { localStorage.setItem('botanica_' + key, JSON.stringify(val)); } catch(e) {}
+}
+
+function loadProgress(key, def) {
+  try {
+    const v = localStorage.getItem('botanica_' + key);
+    return v ? JSON.parse(v) : def;
+  } catch(e) { return def; }
+}
+
+// ========== STATE ==========
+let state = {
+  studyList: [],
+  studyIdx: 0,
+  studyFilter: 'todas',
+  studyKnown: {},
+
+  level: 1,
+  levelList: [],
+  levelIdx: 0,
+  levelCorrect: 0,
+  levelAnswered: false,
+
+  examList: [],
+  examIdx: 0,
+  examCorrect: 0,
+  examLives: 3,
+  examResults: [],
+
+  randomList: [],
+  randomIdx: 0,
+  streak: 0,
+  bestStreak: 0,
+
+  unlockedLevel: 1,
+  recordStreak: 0,
+
+  familiaConocidas: {}
+};
+
+function loadState() {
+  state.unlockedLevel = loadProgress('unlockedLevel', 1);
+  state.recordStreak = loadProgress('recordStreak', 0);
+  state.studyKnown = loadProgress('studyKnown', {});
+  state.familiaConocidas = loadProgress('familiaConocidas', {});
+  updateHeaderStats();
+  updateTotalProgress();
+}
+
+function saveFullState() {
+  saveProgress('unlockedLevel', state.unlockedLevel);
+  saveProgress('recordStreak', state.recordStreak);
+  saveProgress('studyKnown', state.studyKnown);
+  saveProgress('familiaConocidas', state.familiaConocidas);
+}
+
+// ========== HEADER ==========
+function updateHeaderStats() {
+  document.getElementById('streakDisplay').textContent = '🔥 ' + state.streak;
+  document.getElementById('bestDisplay').textContent = '🏆 ' + Math.max(state.recordStreak, state.bestStreak);
+}
+
+// ========== SCREENS ==========
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goHome() {
+  state.streak = 0;
+  updateHeaderStats();
+  showScreen('screenHome');
+  updateTotalProgress();
+}
+
+// ========== TOTAL PROGRESS ==========
+function updateTotalProgress() {
+  const total = especies.length;
+  const known = Object.keys(state.studyKnown).filter(k => state.studyKnown[k]).length;
+  const pct = total > 0 ? Math.round(known / total * 100) : 0;
+  document.getElementById('totalProgressPct').textContent = known + '/' + total + ' (' + pct + '%)';
+  document.getElementById('totalProgressBar').style.width = pct + '%';
+}
+
+// ========== STUDY MODE ==========
+function startStudy() {
+  state.studyFilter = 'todas';
+  state.studyIdx = 0;
+  showScreen('screenStudy');
+  buildFamilyFilter();
+  buildStudyList();
+  showStudyCard();
+}
+
+function buildFamilyFilter() {
+  const container = document.getElementById('studyFamilyFilter');
+  container.innerHTML = '<span class="family-chip active" onclick="filterStudy(\'todas\')">Todas</span>';
+  getFamilies().forEach(f => {
+    container.innerHTML += '<span class="family-chip" onclick="filterStudy(\'' + f + '\')">' + f + '</span>';
+  });
+}
+
+function filterStudy(familia) {
+  state.studyFilter = familia;
+  document.querySelectorAll('.family-chip').forEach((el, i) => {
+    el.classList.toggle('active', (i === 0 && familia === 'todas') || el.textContent === familia);
+  });
+  buildStudyList();
+  showStudyCard();
+}
+
+function buildStudyList() {
+  let list = state.studyFilter === 'todas'
+    ? [...especies]
+    : especies.filter(e => e.familia === state.studyFilter);
+  state.studyList = shuffle(list);
+  state.studyIdx = 0;
+}
+
+function showStudyCard() {
+  if (state.studyIdx >= state.studyList.length) {
+    state.studyIdx = 0;
+    state.studyList = shuffle(state.studyList);
+  }
+  const sp = state.studyList[state.studyIdx];
+  const img = document.getElementById('studyImage');
+  const ph = document.getElementById('studyPlaceholder');
+  img.style.display = 'none';
+  ph.style.display = 'block';
+  ph.textContent = 'Cargando imagen...';
+  if (sp.fotos && sp.fotos[0]) {
+    img.src = sp.fotos[0];
+    img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
+    img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
+  } else {
+    ph.textContent = '📷 ' + sp.nombreCientifico;
+  }
+
+  document.getElementById('studyInfo').classList.remove('revealed');
+  document.getElementById('studyRevealBtn').style.display = 'flex';
+  document.getElementById('studyActions').style.display = 'none';
+
+  // Dots
+  const dots = document.getElementById('studyDots');
+  dots.innerHTML = state.studyList.map((s, i) => {
+    let cls = 'dot';
+    if (i === state.studyIdx) cls += ' current';
+    else if (state.studyKnown[s.id] === true) cls += ' knew';
+    else if (state.studyKnown[s.id] === false) cls += ' didnt';
+    return '<span class="' + cls + '"></span>';
+  }).join('');
+
+  document.getElementById('studyCounter').textContent = (state.studyIdx + 1) + '/' + state.studyList.length;
+}
+
+function revealStudy() {
+  const sp = state.studyList[state.studyIdx];
+  document.getElementById('studyName').textContent = sp.nombreCientifico;
+  document.getElementById('studyGroupTag').textContent = sp.grupo;
+  document.getElementById('studyGroupTag').className = 'tag ' + (sp.grupo === 'Gimnosperma' ? 'tag-gimno' : 'tag-angio');
+  document.getElementById('studyFamilyTag').textContent = sp.familia;
+  document.getElementById('studyCharact').textContent = sp.caracteristicasClave;
+  document.getElementById('studyInfo').classList.add('revealed');
+  document.getElementById('studyRevealBtn').style.display = 'none';
+  document.getElementById('studyActions').style.display = 'flex';
+
+  // Update "current" dot
+  document.querySelectorAll('#studyDots .dot').forEach((d, i) => {
+    d.classList.remove('current');
+    if (i === state.studyIdx) d.classList.add('current');
+  });
+}
+
+function studyFeedback(knew) {
+  const sp = state.studyList[state.studyIdx];
+  state.studyKnown[sp.id] = knew;
+  saveProgress('studyKnown', state.studyKnown);
+
+  // Dot
+  const dots = document.querySelectorAll('#studyDots .dot');
+  if (dots[state.studyIdx]) {
+    dots[state.studyIdx].classList.add(knew ? 'knew' : 'didnt');
+  }
+
+  // Track family progress
+  if (knew) {
+    state.familiaConocidas[sp.familia] = (state.familiaConocidas[sp.familia] || 0) + 1;
+    saveProgress('familiaConocidas', state.familiaConocidas);
+  }
+
+  state.studyIdx++;
+  if (state.studyIdx >= state.studyList.length) {
+    state.studyList = shuffle(state.studyList);
+    state.studyIdx = 0;
+  }
+  setTimeout(showStudyCard, 200);
+  updateTotalProgress();
+}
+
+// ========== LEVELS ==========
+function showLevels() {
+  state.levelList = [];
+  state.levelIdx = 0;
+  state.levelCorrect = 0;
+  showScreen('screenLevels');
+  renderLevelList();
+}
+
+function renderLevelList() {
+  const list = document.getElementById('levelList');
+  const game = document.getElementById('levelGameArea');
+  list.style.display = 'block';
+  game.style.display = 'none';
+
+  const levels = [
+    { num: 1, title: 'Familia', desc: 'Identifica la familia a partir de la foto', color: '#4a7c59' },
+    { num: 2, title: 'Nombre científico', desc: 'Identifica el nombre científico', color: '#6b9e7a' },
+    { num: 3, title: 'Completo', desc: 'Nombre + Familia + Grupo', color: '#d4a017' }
+  ];
+
+  list.innerHTML = levels.map(l => {
+    const unlocked = l.num <= state.unlockedLevel;
+    const pct = getLevelReqProgress(l.num);
+    return '<div class="level-card ' + (!unlocked ? 'locked' : '') + '" onclick="' + (unlocked ? 'startLevel(' + l.num + ')' : '') + '">' +
+      '<div class="level-num" style="background:' + l.color + '">' + (unlocked ? l.num : '🔒') + '</div>' +
+      '<div class="level-info"><h3>Nivel ' + l.num + ': ' + l.title + '</h3>' +
+      '<p>' + l.desc + '</p>' +
+      (!unlocked ? '<div class="level-req">Necesitas ' + pct + '% en nivel ' + (l.num-1) + '</div>' : '') +
+      '</div></div>';
+  }).join('');
+}
+
+function getLevelReqProgress(level) {
+  const stats = loadProgress('levelStats', {});
+  return stats[(level-1)] ? stats[(level-1)].pct : 0;
+}
+
+function startLevel(num) {
+  state.level = num;
+  state.levelIdx = 0;
+  state.levelCorrect = 0;
+  state.levelAnswered = false;
+
+  document.getElementById('levelList').style.display = 'none';
+  document.getElementById('levelGameArea').style.display = 'block';
+
+  const numQ = 10;
+  state.levelList = shuffle([...especies]).slice(0, numQ);
+  showLevelQuestion();
+}
+
+function showLevelQuestion() {
+  state.levelAnswered = false;
+  if (state.levelIdx >= state.levelList.length) {
+    finishLevel();
+    return;
+  }
+  const sp = state.levelList[state.levelIdx];
+
+  const img = document.getElementById('levelImage');
+  const ph = document.getElementById('levelPlaceholder');
+  img.style.display = 'none';
+  ph.style.display = 'block';
+  ph.textContent = 'Cargando imagen...';
+  if (sp.fotos && sp.fotos[0]) {
+    img.src = sp.fotos[0];
+    img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
+    img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
+  } else {
+    ph.textContent = '📷 ' + sp.nombreCientifico;
+  }
+
+  document.getElementById('levelFeedback').style.display = 'none';
+  document.getElementById('levelNextBtn').style.display = 'none';
+
+  let question = '';
+  let correctAns = '';
+  let wrongPool = [];
+
+  if (state.level === 1) {
+    question = '¿A qué familia pertenece?';
+    correctAns = sp.familia;
+    wrongPool = getFamilies().filter(f => f !== sp.familia);
+  } else if (state.level === 2) {
+    question = '¿Cuál es el nombre científico?';
+    correctAns = sp.nombreCientifico;
+    wrongPool = shuffle(especies.filter(e => e.id !== sp.id)).map(e => e.nombreCientifico);
+  } else {
+    question = 'Nombre científico + Familia + Grupo:';
+    const correct = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
+    correctAns = correct;
+    wrongPool = shuffle(especies.filter(e => e.id !== sp.id)).map(e => e.nombreCientifico + ' | ' + e.familia + ' | ' + e.grupo);
+  }
+
+  const options = shuffle([correctAns, ...pickRandom(wrongPool, 3)]);
+
+  document.getElementById('levelQuestion').textContent = question;
+  const optsDiv = document.getElementById('levelOptions');
+  optsDiv.innerHTML = options.map((o, i) =>
+    '<button class="option-btn" data-idx="' + i + '" onclick="levelAnswer(this, \'' + o.replace(/'/g, "\\'") + '\')">' + o + '</button>'
+  ).join('');
+
+  // Dots
+  const dots = document.getElementById('levelDots');
+  dots.innerHTML = state.levelList.map((_, i) => {
+    return '<span class="dot' + (i === state.levelIdx ? ' current' : '') + '"></span>';
+  }).join('');
+
+  document.getElementById('levelCounter').textContent = (state.levelIdx + 1) + '/' + state.levelList.length;
+  document.getElementById('levelScore').textContent = '✅ ' + state.levelCorrect;
+
+  document.getElementById('levelQuestionArea').style.display = 'block';
+}
+
+function levelAnswer(btn, answer) {
+  if (state.levelAnswered) return;
+  state.levelAnswered = true;
+
+  const sp = state.levelList[state.levelIdx];
+  let correctAns = '';
+  if (state.level === 1) correctAns = sp.familia;
+  else if (state.level === 2) correctAns = sp.nombreCientifico;
+  else correctAns = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
+
+  const isCorrect = answer === correctAns;
+  if (isCorrect) state.levelCorrect++;
+
+  const btns = document.querySelectorAll('#levelOptions .option-btn');
+  btns.forEach(b => b.disabled = true);
+  btns.forEach(b => {
+    const txt = b.textContent;
+    if (txt === correctAns) b.classList.add('correct');
+    if (b === btn && !isCorrect) b.classList.add('wrong');
+  });
+
+  // Dots
+  const dots = document.querySelectorAll('#levelDots .dot');
+  if (dots[state.levelIdx]) dots[state.levelIdx].classList.add(isCorrect ? 'knew' : 'didnt');
+
+  // Feedback
+  const fb = document.getElementById('levelFeedback');
+  fb.style.display = 'block';
+  if (isCorrect) {
+    fb.innerHTML = '<p style="color:var(--green);font-weight:600;">✅ ¡Correcto!</p>';
+    showFlash(true);
+  } else {
+    fb.innerHTML = '<p style="color:var(--red);font-weight:600;">❌ Incorrecto</p>' +
+      '<p style="font-size:0.9rem;color:var(--text-light);margin-top:4px;"><i>' + correctAns + '</i></p>' +
+      '<p style="font-size:0.85rem;color:var(--text-light);margin-top:4px;">' + sp.caracteristicasClave + '</p>';
+    showFlash(false);
+  }
+
+  document.getElementById('levelScore').textContent = '✅ ' + state.levelCorrect;
+  document.getElementById('levelNextBtn').style.display = 'block';
+  if (state.levelIdx >= state.levelList.length - 1) {
+    document.getElementById('levelNextBtn').textContent = 'Ver resultado';
+  }
+}
+
+function levelNext() {
+  state.levelIdx++;
+  if (state.levelIdx >= state.levelList.length) {
+    finishLevel();
+  } else {
+    showLevelQuestion();
+  }
+}
+
+function finishLevel() {
+  const pct = Math.round(state.levelCorrect / state.levelList.length * 100);
+  const passed = pct >= 70;
+
+  const stats = loadProgress('levelStats', {});
+  stats[state.level] = { pct, correct: state.levelCorrect, total: state.levelList.length };
+  saveProgress('levelStats', stats);
+
+  if (passed && state.level < 3) {
+    state.unlockedLevel = Math.max(state.unlockedLevel, state.level + 1);
+    saveFullState();
+  }
+
+  const overlay = document.getElementById('scoreOverlay');
+  document.getElementById('scoreTitle').textContent = passed ? '🎉 ¡Nivel superado!' : '💪 Sigue practicando';
+  document.getElementById('scoreBig').textContent = state.levelCorrect + '/' + state.levelList.length;
+  document.getElementById('scoreDetail').textContent =
+    'Has obtenido un ' + pct + '%' + (passed ? ' — ¡Nivel ' + (state.level + 1 <= 3 ? 'siguiente desbloqueado!' : 'completado!') : ' — mínimo 70% necesario');
+
+  document.getElementById('scoreActions').innerHTML =
+    '<button class="btn btn-block btn-green" onclick="showLevels()">Volver a niveles</button>' +
+    '<button class="btn btn-block btn-outline" onclick="goHome()">Ir al inicio</button>';
+  overlay.classList.add('active');
+}
+
+// ========== EXAM ==========
+function startExam() {
+  state.examList = shuffle([...especies]).slice(0, 20);
+  state.examIdx = 0;
+  state.examCorrect = 0;
+  state.examLives = 3;
+  state.examResults = [];
+  state.streak = 0;
+
+  document.getElementById('examResults').style.display = 'none';
+  document.getElementById('examArea').style.display = 'block';
+
+  showScreen('screenExam');
+  showExamQuestion();
+}
+
+function showExamQuestion() {
+  if (state.examIdx >= state.examList.length || state.examLives <= 0) {
+    finishExam();
+    return;
+  }
+  const sp = state.examList[state.examIdx];
+
+  const img = document.getElementById('examImage');
+  const ph = document.getElementById('examPlaceholder');
+  img.style.display = 'none';
+  ph.style.display = 'block';
+  ph.textContent = 'Cargando imagen...';
+  if (sp.fotos && sp.fotos[0]) {
+    img.src = sp.fotos[0];
+    img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
+    img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
+  } else {
+    ph.textContent = '📷 ' + sp.nombreCientifico;
+  }
+
+  document.getElementById('examFeedback').style.display = 'none';
+  document.getElementById('examNextBtn').style.display = 'none';
+  document.getElementById('examProgress').textContent = 'Pregunta ' + (state.examIdx + 1) + '/' + state.examList.length;
+
+  // Lives
+  const livesDiv = document.getElementById('examLives');
+  livesDiv.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    livesDiv.innerHTML += '<span class="heart' + (i >= state.examLives ? ' lost' : '') + '">❤️</span>';
+  }
+
+  const correct = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
+  const wrongPool = shuffle(especies.filter(e => e.id !== sp.id)).map(e =>
+    e.nombreCientifico + ' | ' + e.familia + ' | ' + e.grupo
+  );
+  const options = shuffle([correct, ...pickRandom(wrongPool, 3)]);
+
+  const optsDiv = document.getElementById('examOptions');
+  optsDiv.innerHTML = options.map(o =>
+    '<button class="option-btn" onclick="examAnswer(this, \'' + o.replace(/'/g, "\\'") + '\')">' + o + '</button>'
+  ).join('');
+}
+
+function examAnswer(btn, answer) {
+  const sp = state.examList[state.examIdx];
+  const correct = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
+  const isCorrect = answer === correct;
+
+  const btns = document.querySelectorAll('#examOptions .option-btn');
+  btns.forEach(b => b.disabled = true);
+  btns.forEach(b => {
+    if (b.textContent === correct) b.classList.add('correct');
+    if (b === btn && !isCorrect) b.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('examFeedback');
+  fb.style.display = 'block';
+
+  if (isCorrect) {
+    state.examCorrect++;
+    state.streak++;
+    fb.innerHTML = '<p style="color:var(--green);font-weight:600;">✅ ¡Correcto!</p>';
+    showFlash(true);
+  } else {
+    state.examLives--;
+    state.streak = 0;
+    fb.innerHTML = '<p style="color:var(--red);font-weight:600;">❌ Incorrecto</p>' +
+      '<p style="font-size:0.9rem;"><i>' + correct + '</i></p>' +
+      '<p style="font-size:0.85rem;color:var(--text-light);margin-top:4px;">' + sp.caracteristicasClave + '</p>';
+    showFlash(false);
+    // Update lives
+    const livesDiv = document.getElementById('examLives');
+    livesDiv.innerHTML = '';
+    for (let i = 0; i < 3; i++) {
+      livesDiv.innerHTML += '<span class="heart' + (i >= state.examLives ? ' lost' : '') + '">❤️</span>';
+    }
+  }
+
+  state.examResults.push({
+    especie: sp,
+    correct: isCorrect,
+    respuestaUsuario: answer,
+    respuestaCorrecta: correct
+  });
+
+  updateHeaderStats();
+
+  if (state.examLives <= 0 || state.examIdx >= state.examList.length - 1) {
+    document.getElementById('examNextBtn').textContent = 'Ver resultado';
+  } else {
+    document.getElementById('examNextBtn').textContent = 'Siguiente →';
+  }
+  document.getElementById('examNextBtn').style.display = 'block';
+}
+
+function examNext() {
+  state.examIdx++;
+  if (state.examIdx >= state.examList.length || state.examLives <= 0) {
+    finishExam();
+  } else {
+    showExamQuestion();
+  }
+}
+
+function finishExam() {
+  const total = state.examList.length;
+  const answered = state.examResults.length;
+  const pct = answered > 0 ? Math.round(state.examCorrect / total * 100) : 0;
+  const note = (state.examCorrect / 2).toFixed(1);
+
+  const overlay = document.getElementById('scoreOverlay');
+  document.getElementById('scoreTitle').textContent = '📝 Resultado del Examen';
+  document.getElementById('scoreBig').textContent = state.examCorrect + '/' + total;
+  document.getElementById('scoreDetail').innerHTML =
+    'Nota: <strong>' + note + '/10</strong> &nbsp;|&nbsp; ' + pct + '% aciertos' +
+    (state.examLives <= 0 ? '<br><span style="color:var(--red);">❌ Te has quedado sin vidas</span>' : '');
+
+  document.getElementById('scoreActions').innerHTML =
+    '<button class="btn btn-block btn-green" onclick="startExam()">Repetir examen</button>' +
+    '<button class="btn btn-block btn-outline" onclick="reviewExam()">Repasar fallos</button>' +
+    '<button class="btn btn-block btn-outline" onclick="goHome()">Ir al inicio</button>';
+  overlay.classList.add('active');
+
+  // Update best streak
+  if (state.streak > state.recordStreak) {
+    state.recordStreak = state.streak;
+    saveFullState();
+  }
+}
+
+function reviewExam() {
+  document.getElementById('scoreOverlay').classList.remove('active');
+  document.getElementById('examArea').style.display = 'none';
+  const resultsDiv = document.getElementById('examResults');
+  resultsDiv.style.display = 'block';
+
+  const wrong = state.examResults.filter(r => !r.correct);
+  if (wrong.length === 0) {
+    resultsDiv.innerHTML = '<div class="card"><p style="text-align:center;">🎉 ¡Todos correctos! No hay nada que repasar.</p>' +
+      '<button class="btn btn-block btn-green" style="margin-top:12px;" onclick="goHome()">Volver al inicio</button></div>';
+    return;
+  }
+
+  resultsDiv.innerHTML = '<h3>Repaso de fallos (' + wrong.length + ')</h3>' +
+    '<div class="results-list">' +
+    wrong.map(r => {
+      const sp = r.especie;
+      return '<div class="result-item wrong">' +
+        '<h4><i>' + sp.nombreCientifico + '</i></h4>' +
+        '<div class="detail' + '">' + sp.familia + ' · ' + sp.grupo + '</div>' +
+        '<div class="detail" style="margin-top:4px;">' + sp.caracteristicasClave + '</div>' +
+        '</div>';
+    }).join('') +
+    '</div>' +
+    '<button class="btn btn-block btn-green" style="margin-top:12px;" onclick="goHome()">Volver al inicio</button>';
+}
+
+// ========== RANDOM ==========
+function startRandom() {
+  state.randomList = shuffle([...especies]);
+  state.randomIdx = 0;
+  state.streak = 0;
+  state.bestStreak = state.recordStreak;
+  state.randomQuestionType = null;
+  showScreen('screenRandom');
+  updateRandomStreak();
+  showRandomQuestion();
+}
+
+function showRandomQuestion() {
+  if (state.randomIdx >= state.randomList.length) {
+    state.randomList = shuffle([...especies]);
+    state.randomIdx = 0;
+  }
+  const sp = state.randomList[state.randomIdx];
+
+  const img = document.getElementById('randomImage');
+  const ph = document.getElementById('randomPlaceholder');
+  img.style.display = 'none';
+  ph.style.display = 'block';
+  ph.textContent = 'Cargando imagen...';
+  if (sp.fotos && sp.fotos[0]) {
+    img.src = sp.fotos[0];
+    img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
+    img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
+  } else {
+    ph.textContent = '📷 ' + sp.nombreCientifico;
+  }
+
+  document.getElementById('randomFeedback').style.display = 'none';
+  document.getElementById('randomNextBtn').style.display = 'none';
+
+  // Pick a random question type
+  const types = ['familia', 'nombre', 'completo'];
+  state.randomQuestionType = types[Math.floor(Math.random() * 3)];
+  let correct = '';
+  let wrongPool = [];
+
+  if (state.randomQuestionType === 'familia') {
+    correct = sp.familia;
+    wrongPool = getFamilies().filter(f => f !== sp.familia);
+  } else if (state.randomQuestionType === 'nombre') {
+    correct = sp.nombreCientifico;
+    wrongPool = shuffle(especies.filter(e => e.id !== sp.id)).map(e => e.nombreCientifico);
+  } else {
+    correct = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
+    wrongPool = shuffle(especies.filter(e => e.id !== sp.id)).map(e =>
+      e.nombreCientifico + ' | ' + e.familia + ' | ' + e.grupo
+    );
+  }
+
+  const options = shuffle([correct, ...pickRandom(wrongPool, 3)]);
+  const optsDiv = document.getElementById('randomOptions');
+  optsDiv.innerHTML = options.map(o =>
+    '<button class="option-btn" onclick="randomAnswer(this, \'' + o.replace(/'/g, "\\'") + '\')">' + o + '</button>'
+  ).join('');
+}
+
+function randomAnswer(btn, answer) {
+  const sp = state.randomList[state.randomIdx];
+  const btns = document.querySelectorAll('#randomOptions .option-btn');
+  let correctAns = '';
+  if (state.randomQuestionType === 'familia') correctAns = sp.familia;
+  else if (state.randomQuestionType === 'nombre') correctAns = sp.nombreCientifico;
+  else correctAns = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
+
+  const isCorrect = answer === correctAns;
+
+  btns.forEach(b => b.disabled = true);
+  btns.forEach(b => {
+    if (b.textContent === correctAns) b.classList.add('correct');
+    if (b === btn && !isCorrect) b.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('randomFeedback');
+  fb.style.display = 'block';
+
+  if (isCorrect) {
+    state.streak++;
+    fb.innerHTML = '<p style="color:var(--green);font-weight:600;">✅ ¡Correcto!</p>';
+    showFlash(true);
+  } else {
+    state.streak = 0;
+    fb.innerHTML = '<p style="color:var(--red);font-weight:600;">❌ Incorrecto</p>' +
+      '<p style="font-size:0.9rem;"><i>' + correctAns + '</i></p>' +
+      '<p style="font-size:0.85rem;color:var(--text-light);margin-top:4px;">' + sp.caracteristicasClave + '</p>';
+    showFlash(false);
+  }
+
+  if (state.streak > state.recordStreak) {
+    state.recordStreak = state.streak;
+    saveFullState();
+  }
+  state.bestStreak = Math.max(state.bestStreak, state.streak);
+
+  updateRandomStreak();
+  updateHeaderStats();
+  document.getElementById('randomNextBtn').style.display = 'block';
+}
+
+function updateRandomStreak() {
+  document.getElementById('randomStreakNum').textContent = state.streak;
+  document.getElementById('randomBestNum').textContent = state.recordStreak;
+}
+
+function randomNext() {
+  state.randomIdx++;
+  showRandomQuestion();
+}
+
+// ========== FEEDBACK FLASH ==========
+function showFlash(correct) {
+  const el = document.createElement('div');
+  el.className = 'feedback-flash ' + (correct ? 'correct' : 'wrong');
+  el.textContent = correct ? '✅' : '❌';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 800);
+}
+
+// ========== KEYBOARD SHORTCUTS ==========
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') goHome();
+});
+
+// ========== PWA ==========
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js');
+  });
+}
+
+// ========== INIT ==========
+loadState();
+</script>
+</body>
+</html>
