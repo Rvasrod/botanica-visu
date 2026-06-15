@@ -198,10 +198,6 @@ function getFamilies() {
   return [...f].sort();
 }
 
-function getSpeciesByFamily(familia) {
-  return especies.filter(e => e.familia === familia);
-}
-
 function saveProgress(key, val) {
   try { localStorage.setItem('botanica_' + key, JSON.stringify(val)); } catch(e) {}
 }
@@ -213,8 +209,33 @@ function loadProgress(key, def) {
   } catch(e) { return def; }
 }
 
+// ========== FOTO HELPER ==========
+// Única función que gestiona la rotación de fotos.
+// Guarda el índice por especie en state.fotoIdx, nunca en el objeto de la especie.
+function loadFoto(sp, imgEl, phEl) {
+  imgEl.style.display = 'none';
+  phEl.style.display = 'block';
+  phEl.textContent = 'Cargando imagen...';
+
+  if (!sp.fotos || !sp.fotos.length) {
+    phEl.textContent = '📷 ' + sp.nombreCientifico;
+    return;
+  }
+
+  // Índice actual para esta especie, avanza en cada llamada
+  const idx = (state.fotoIdx[sp.id] || 0) % sp.fotos.length;
+  state.fotoIdx[sp.id] = idx + 1; // el siguiente uso cogerá la foto siguiente
+
+  imgEl.src = sp.fotos[idx];
+  imgEl.onload  = () => { imgEl.style.display = 'block'; phEl.style.display = 'none'; };
+  imgEl.onerror = () => { phEl.textContent = '📷 ' + sp.nombreCientifico; };
+}
+
 // ========== STATE ==========
 let state = {
+  // foto rotation — clave: id de especie, valor: próximo índice a usar
+  fotoIdx: {},
+
   studyList: [],
   studyIdx: 0,
   studyFilter: 'todas',
@@ -234,6 +255,7 @@ let state = {
 
   randomList: [],
   randomIdx: 0,
+  randomQuestionType: null,
   streak: 0,
   bestStreak: 0,
 
@@ -244,25 +266,25 @@ let state = {
 };
 
 function loadState() {
-  state.unlockedLevel = loadProgress('unlockedLevel', 1);
-  state.recordStreak = loadProgress('recordStreak', 0);
-  state.studyKnown = loadProgress('studyKnown', {});
+  state.unlockedLevel  = loadProgress('unlockedLevel', 1);
+  state.recordStreak   = loadProgress('recordStreak', 0);
+  state.studyKnown     = loadProgress('studyKnown', {});
   state.familiaConocidas = loadProgress('familiaConocidas', {});
   updateHeaderStats();
   updateTotalProgress();
 }
 
 function saveFullState() {
-  saveProgress('unlockedLevel', state.unlockedLevel);
-  saveProgress('recordStreak', state.recordStreak);
-  saveProgress('studyKnown', state.studyKnown);
+  saveProgress('unlockedLevel',    state.unlockedLevel);
+  saveProgress('recordStreak',     state.recordStreak);
+  saveProgress('studyKnown',       state.studyKnown);
   saveProgress('familiaConocidas', state.familiaConocidas);
 }
 
 // ========== HEADER ==========
 function updateHeaderStats() {
   document.getElementById('streakDisplay').textContent = '🔥 ' + state.streak;
-  document.getElementById('bestDisplay').textContent = '🏆 ' + Math.max(state.recordStreak, state.bestStreak);
+  document.getElementById('bestDisplay').textContent   = '🏆 ' + Math.max(state.recordStreak, state.bestStreak);
 }
 
 // ========== SCREENS ==========
@@ -282,15 +304,15 @@ function goHome() {
 function updateTotalProgress() {
   const total = especies.length;
   const known = Object.keys(state.studyKnown).filter(k => state.studyKnown[k]).length;
-  const pct = total > 0 ? Math.round(known / total * 100) : 0;
-  document.getElementById('totalProgressPct').textContent = known + '/' + total + ' (' + pct + '%)';
-  document.getElementById('totalProgressBar').style.width = pct + '%';
+  const pct   = total > 0 ? Math.round(known / total * 100) : 0;
+  document.getElementById('totalProgressPct').textContent  = known + '/' + total + ' (' + pct + '%)';
+  document.getElementById('totalProgressBar').style.width  = pct + '%';
 }
 
 // ========== STUDY MODE ==========
 function startStudy() {
   state.studyFilter = 'todas';
-  state.studyIdx = 0;
+  state.studyIdx    = 0;
   showScreen('screenStudy');
   buildFamilyFilter();
   buildStudyList();
@@ -315,44 +337,35 @@ function filterStudy(familia) {
 }
 
 function buildStudyList() {
-  let list = state.studyFilter === 'todas'
+  const list = state.studyFilter === 'todas'
     ? [...especies]
     : especies.filter(e => e.familia === state.studyFilter);
   state.studyList = shuffle(list);
-  state.studyIdx = 0;
+  state.studyIdx  = 0;
 }
 
 function showStudyCard() {
   if (state.studyIdx >= state.studyList.length) {
-    state.studyIdx = 0;
+    state.studyIdx  = 0;
     state.studyList = shuffle(state.studyList);
   }
   const sp = state.studyList[state.studyIdx];
-  const img = document.getElementById('studyImage');
-  const ph = document.getElementById('studyPlaceholder');
-  img.style.display = 'none';
-  ph.style.display = 'block';
-  ph.textContent = 'Cargando imagen...';
-  if (sp.fotos && sp.fotos.length) {
-    sp._fotoIdx = (sp._fotoIdx || 0) % sp.fotos.length;
-    img.src = sp.fotos[sp._fotoIdx];
-    sp._fotoIdx = (sp._fotoIdx + 1) % sp.fotos.length;
-    img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
-    img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
-  } else {
-    ph.textContent = '📷 ' + sp.nombreCientifico;
-  }
+
+  loadFoto(sp,
+    document.getElementById('studyImage'),
+    document.getElementById('studyPlaceholder')
+  );
 
   document.getElementById('studyInfo').classList.remove('revealed');
   document.getElementById('studyRevealBtn').style.display = 'flex';
-  document.getElementById('studyActions').style.display = 'none';
+  document.getElementById('studyActions').style.display   = 'none';
 
   // Dots
   const dots = document.getElementById('studyDots');
   dots.innerHTML = state.studyList.map((s, i) => {
     let cls = 'dot';
-    if (i === state.studyIdx) cls += ' current';
-    else if (state.studyKnown[s.id] === true) cls += ' knew';
+    if (i === state.studyIdx)              cls += ' current';
+    else if (state.studyKnown[s.id] === true)  cls += ' knew';
     else if (state.studyKnown[s.id] === false) cls += ' didnt';
     return '<span class="' + cls + '"></span>';
   }).join('');
@@ -362,16 +375,15 @@ function showStudyCard() {
 
 function revealStudy() {
   const sp = state.studyList[state.studyIdx];
-  document.getElementById('studyName').textContent = sp.nombreCientifico;
-  document.getElementById('studyGroupTag').textContent = sp.grupo;
-  document.getElementById('studyGroupTag').className = 'tag ' + (sp.grupo === 'Gimnosperma' ? 'tag-gimno' : 'tag-angio');
+  document.getElementById('studyName').textContent      = sp.nombreCientifico;
+  document.getElementById('studyGroupTag').textContent  = sp.grupo;
+  document.getElementById('studyGroupTag').className    = 'tag ' + (sp.grupo === 'Gimnosperma' ? 'tag-gimno' : 'tag-angio');
   document.getElementById('studyFamilyTag').textContent = sp.familia;
-  document.getElementById('studyCharact').textContent = sp.caracteristicasClave;
+  document.getElementById('studyCharact').textContent   = sp.caracteristicasClave;
   document.getElementById('studyInfo').classList.add('revealed');
   document.getElementById('studyRevealBtn').style.display = 'none';
-  document.getElementById('studyActions').style.display = 'flex';
+  document.getElementById('studyActions').style.display   = 'flex';
 
-  // Update "current" dot
   document.querySelectorAll('#studyDots .dot').forEach((d, i) => {
     d.classList.remove('current');
     if (i === state.studyIdx) d.classList.add('current');
@@ -383,13 +395,11 @@ function studyFeedback(knew) {
   state.studyKnown[sp.id] = knew;
   saveProgress('studyKnown', state.studyKnown);
 
-  // Dot
   const dots = document.querySelectorAll('#studyDots .dot');
   if (dots[state.studyIdx]) {
     dots[state.studyIdx].classList.add(knew ? 'knew' : 'didnt');
   }
 
-  // Track family progress
   if (knew) {
     state.familiaConocidas[sp.familia] = (state.familiaConocidas[sp.familia] || 0) + 1;
     saveProgress('familiaConocidas', state.familiaConocidas);
@@ -398,7 +408,7 @@ function studyFeedback(knew) {
   state.studyIdx++;
   if (state.studyIdx >= state.studyList.length) {
     state.studyList = shuffle(state.studyList);
-    state.studyIdx = 0;
+    state.studyIdx  = 0;
   }
   setTimeout(showStudyCard, 200);
   updateTotalProgress();
@@ -406,8 +416,8 @@ function studyFeedback(knew) {
 
 // ========== LEVELS ==========
 function showLevels() {
-  state.levelList = [];
-  state.levelIdx = 0;
+  state.levelList    = [];
+  state.levelIdx     = 0;
   state.levelCorrect = 0;
   showScreen('screenLevels');
   renderLevelList();
@@ -420,104 +430,87 @@ function renderLevelList() {
   game.style.display = 'none';
 
   const levels = [
-    { num: 1, title: 'Familia', desc: 'Identifica la familia a partir de la foto', color: '#4a7c59' },
-    { num: 2, title: 'Nombre científico', desc: 'Identifica el nombre científico', color: '#6b9e7a' },
-    { num: 3, title: 'Completo', desc: 'Nombre + Familia + Grupo', color: '#d4a017' }
+    { num: 1, title: 'Familia',           desc: 'Identifica la familia a partir de la foto',  color: '#4a7c59' },
+    { num: 2, title: 'Nombre científico', desc: 'Identifica el nombre científico',             color: '#6b9e7a' },
+    { num: 3, title: 'Completo',          desc: 'Nombre + Familia + Grupo',                    color: '#d4a017' }
   ];
 
   list.innerHTML = levels.map(l => {
     const unlocked = l.num <= state.unlockedLevel;
-    const pct = getLevelReqProgress(l.num);
+    const pct      = getLevelReqProgress(l.num);
     return '<div class="level-card ' + (!unlocked ? 'locked' : '') + '" onclick="' + (unlocked ? 'startLevel(' + l.num + ')' : '') + '">' +
       '<div class="level-num" style="background:' + l.color + '">' + (unlocked ? l.num : '🔒') + '</div>' +
       '<div class="level-info"><h3>Nivel ' + l.num + ': ' + l.title + '</h3>' +
       '<p>' + l.desc + '</p>' +
-      (!unlocked ? '<div class="level-req">Necesitas ' + pct + '% en nivel ' + (l.num-1) + '</div>' : '') +
+      (!unlocked ? '<div class="level-req">Necesitas ' + pct + '% en nivel ' + (l.num - 1) + '</div>' : '') +
       '</div></div>';
   }).join('');
 }
 
 function getLevelReqProgress(level) {
   const stats = loadProgress('levelStats', {});
-  return stats[(level-1)] ? stats[(level-1)].pct : 0;
+  return stats[(level - 1)] ? stats[(level - 1)].pct : 0;
 }
 
 function startLevel(num) {
-  state.level = num;
-  state.levelIdx = 0;
+  state.level        = num;
+  state.levelIdx     = 0;
   state.levelCorrect = 0;
   state.levelAnswered = false;
 
-  document.getElementById('levelList').style.display = 'none';
+  document.getElementById('levelList').style.display     = 'none';
   document.getElementById('levelGameArea').style.display = 'block';
 
-  const numQ = 10;
-  state.levelList = shuffle([...especies]).slice(0, numQ);
+  state.levelList = shuffle([...especies]).slice(0, 10);
   showLevelQuestion();
 }
 
 function showLevelQuestion() {
   state.levelAnswered = false;
-  if (state.levelIdx >= state.levelList.length) {
-    finishLevel();
-    return;
-  }
-  const sp = state.levelList[state.levelIdx];
+  if (state.levelIdx >= state.levelList.length) { finishLevel(); return; }
 
-  const img = document.getElementById('levelImage');
-  const ph = document.getElementById('levelPlaceholder');
-  img.style.display = 'none';
-  ph.style.display = 'block';
-  ph.textContent = 'Cargando imagen...';
-  if (sp.fotos && sp.fotos.length) {
-    sp._fotoIdx = (sp._fotoIdx || 0) % sp.fotos.length;
-    img.src = sp.fotos[sp._fotoIdx];
-    sp._fotoIdx = (sp._fotoIdx + 1) % sp.fotos.length;
-    img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
-    img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
-  } else {
-    ph.textContent = '📷 ' + sp.nombreCientifico;
-  }
+  const sp = state.levelList[state.levelIdx];
+  loadFoto(sp,
+    document.getElementById('levelImage'),
+    document.getElementById('levelPlaceholder')
+  );
 
   document.getElementById('levelFeedback').style.display = 'none';
-  document.getElementById('levelNextBtn').style.display = 'none';
+  document.getElementById('levelNextBtn').style.display  = 'none';
 
-  let question = '';
+  let question   = '';
   let correctAns = '';
-  let wrongPool = [];
+  let wrongPool  = [];
 
   if (state.level === 1) {
-    question = '¿A qué familia pertenece?';
+    question   = '¿A qué familia pertenece?';
     correctAns = sp.familia;
-    wrongPool = getFamilies().filter(f => f !== sp.familia);
+    wrongPool  = getFamilies().filter(f => f !== sp.familia);
   } else if (state.level === 2) {
-    question = '¿Cuál es el nombre científico?';
+    question   = '¿Cuál es el nombre científico?';
     correctAns = sp.nombreCientifico;
-    wrongPool = shuffle(especies.filter(e => e.id !== sp.id)).map(e => e.nombreCientifico);
+    wrongPool  = shuffle(especies.filter(e => e.id !== sp.id)).map(e => e.nombreCientifico);
   } else {
-    question = 'Nombre científico + Familia + Grupo:';
-    const correct = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
-    correctAns = correct;
-    wrongPool = shuffle(especies.filter(e => e.id !== sp.id)).map(e => e.nombreCientifico + ' | ' + e.familia + ' | ' + e.grupo);
+    question   = 'Nombre científico + Familia + Grupo:';
+    correctAns = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
+    wrongPool  = shuffle(especies.filter(e => e.id !== sp.id))
+                  .map(e => e.nombreCientifico + ' | ' + e.familia + ' | ' + e.grupo);
   }
 
   const options = shuffle([correctAns, ...pickRandom(wrongPool, 3)]);
 
   document.getElementById('levelQuestion').textContent = question;
-  const optsDiv = document.getElementById('levelOptions');
-  optsDiv.innerHTML = options.map((o, i) =>
+  document.getElementById('levelOptions').innerHTML = options.map((o, i) =>
     '<button class="option-btn" data-idx="' + i + '" onclick="levelAnswer(this, \'' + o.replace(/'/g, "\\'") + '\')">' + o + '</button>'
   ).join('');
 
   // Dots
-  const dots = document.getElementById('levelDots');
-  dots.innerHTML = state.levelList.map((_, i) => {
-    return '<span class="dot' + (i === state.levelIdx ? ' current' : '') + '"></span>';
-  }).join('');
+  document.getElementById('levelDots').innerHTML = state.levelList.map((_, i) =>
+    '<span class="dot' + (i === state.levelIdx ? ' current' : '') + '"></span>'
+  ).join('');
 
   document.getElementById('levelCounter').textContent = (state.levelIdx + 1) + '/' + state.levelList.length;
-  document.getElementById('levelScore').textContent = '✅ ' + state.levelCorrect;
-
+  document.getElementById('levelScore').textContent   = '✅ ' + state.levelCorrect;
   document.getElementById('levelQuestionArea').style.display = 'block';
 }
 
@@ -527,39 +520,37 @@ function levelAnswer(btn, answer) {
 
   const sp = state.levelList[state.levelIdx];
   let correctAns = '';
-  if (state.level === 1) correctAns = sp.familia;
+  if (state.level === 1)      correctAns = sp.familia;
   else if (state.level === 2) correctAns = sp.nombreCientifico;
-  else correctAns = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
+  else                        correctAns = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
 
   const isCorrect = answer === correctAns;
   if (isCorrect) state.levelCorrect++;
 
   const btns = document.querySelectorAll('#levelOptions .option-btn');
-  btns.forEach(b => b.disabled = true);
   btns.forEach(b => {
-    const txt = b.textContent;
-    if (txt === correctAns) b.classList.add('correct');
-    if (b === btn && !isCorrect) b.classList.add('wrong');
+    b.disabled = true;
+    if (b.textContent === correctAns) b.classList.add('correct');
+    if (b === btn && !isCorrect)      b.classList.add('wrong');
   });
 
-  // Dots
   const dots = document.querySelectorAll('#levelDots .dot');
   if (dots[state.levelIdx]) dots[state.levelIdx].classList.add(isCorrect ? 'knew' : 'didnt');
 
-  // Feedback
   const fb = document.getElementById('levelFeedback');
   fb.style.display = 'block';
   if (isCorrect) {
     fb.innerHTML = '<p style="color:var(--green);font-weight:600;">✅ ¡Correcto!</p>';
     showFlash(true);
   } else {
-    fb.innerHTML = '<p style="color:var(--red);font-weight:600;">❌ Incorrecto</p>' +
+    fb.innerHTML =
+      '<p style="color:var(--red);font-weight:600;">❌ Incorrecto</p>' +
       '<p style="font-size:0.9rem;color:var(--text-light);margin-top:4px;"><i>' + correctAns + '</i></p>' +
       '<p style="font-size:0.85rem;color:var(--text-light);margin-top:4px;">' + sp.caracteristicasClave + '</p>';
     showFlash(false);
   }
 
-  document.getElementById('levelScore').textContent = '✅ ' + state.levelCorrect;
+  document.getElementById('levelScore').textContent    = '✅ ' + state.levelCorrect;
   document.getElementById('levelNextBtn').style.display = 'block';
   if (state.levelIdx >= state.levelList.length - 1) {
     document.getElementById('levelNextBtn').textContent = 'Ver resultado';
@@ -568,15 +559,12 @@ function levelAnswer(btn, answer) {
 
 function levelNext() {
   state.levelIdx++;
-  if (state.levelIdx >= state.levelList.length) {
-    finishLevel();
-  } else {
-    showLevelQuestion();
-  }
+  if (state.levelIdx >= state.levelList.length) finishLevel();
+  else showLevelQuestion();
 }
 
 function finishLevel() {
-  const pct = Math.round(state.levelCorrect / state.levelList.length * 100);
+  const pct    = Math.round(state.levelCorrect / state.levelList.length * 100);
   const passed = pct >= 70;
 
   const stats = loadProgress('levelStats', {});
@@ -588,89 +576,75 @@ function finishLevel() {
     saveFullState();
   }
 
-  const overlay = document.getElementById('scoreOverlay');
-  document.getElementById('scoreTitle').textContent = passed ? '🎉 ¡Nivel superado!' : '💪 Sigue practicando';
-  document.getElementById('scoreBig').textContent = state.levelCorrect + '/' + state.levelList.length;
+  document.getElementById('scoreTitle').textContent  = passed ? '🎉 ¡Nivel superado!' : '💪 Sigue practicando';
+  document.getElementById('scoreBig').textContent    = state.levelCorrect + '/' + state.levelList.length;
   document.getElementById('scoreDetail').textContent =
-    'Has obtenido un ' + pct + '%' + (passed ? ' — ¡Nivel ' + (state.level + 1 <= 3 ? 'siguiente desbloqueado!' : 'completado!') : ' — mínimo 70% necesario');
-
-  document.getElementById('scoreActions').innerHTML =
+    'Has obtenido un ' + pct + '%' +
+    (passed ? ' — ¡Nivel ' + (state.level + 1 <= 3 ? 'siguiente desbloqueado!' : 'completado!') : ' — mínimo 70% necesario');
+  document.getElementById('scoreActions').innerHTML  =
     '<button class="btn btn-block btn-green" onclick="showLevels()">Volver a niveles</button>' +
     '<button class="btn btn-block btn-outline" onclick="goHome()">Ir al inicio</button>';
-  overlay.classList.add('active');
+  document.getElementById('scoreOverlay').classList.add('active');
 }
 
 // ========== EXAM ==========
 function startExam() {
-  state.examList = shuffle([...especies]).slice(0, 20);
-  state.examIdx = 0;
+  state.examList    = shuffle([...especies]).slice(0, 20);
+  state.examIdx     = 0;
   state.examCorrect = 0;
-  state.examLives = 3;
+  state.examLives   = 3;
   state.examResults = [];
-  state.streak = 0;
+  state.streak      = 0;
 
   document.getElementById('examResults').style.display = 'none';
-  document.getElementById('examArea').style.display = 'block';
+  document.getElementById('examArea').style.display    = 'block';
 
   showScreen('screenExam');
   showExamQuestion();
 }
 
 function showExamQuestion() {
-  if (state.examIdx >= state.examList.length || state.examLives <= 0) {
-    finishExam();
-    return;
-  }
-  const sp = state.examList[state.examIdx];
+  if (state.examIdx >= state.examList.length || state.examLives <= 0) { finishExam(); return; }
 
-  const img = document.getElementById('examImage');
-  const ph = document.getElementById('examPlaceholder');
-  img.style.display = 'none';
-  ph.style.display = 'block';
-  ph.textContent = 'Cargando imagen...';
-  if (sp.fotos && sp.fotos.length) {
-    sp._fotoIdx = (sp._fotoIdx || 0) % sp.fotos.length;
-    img.src = sp.fotos[sp._fotoIdx];
-    sp._fotoIdx = (sp._fotoIdx + 1) % sp.fotos.length;
-    img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
-    img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
-  } else {
-    ph.textContent = '📷 ' + sp.nombreCientifico;
-  }
+  const sp = state.examList[state.examIdx];
+  loadFoto(sp,
+    document.getElementById('examImage'),
+    document.getElementById('examPlaceholder')
+  );
 
   document.getElementById('examFeedback').style.display = 'none';
-  document.getElementById('examNextBtn').style.display = 'none';
-  document.getElementById('examProgress').textContent = 'Pregunta ' + (state.examIdx + 1) + '/' + state.examList.length;
+  document.getElementById('examNextBtn').style.display  = 'none';
+  document.getElementById('examProgress').textContent   = 'Pregunta ' + (state.examIdx + 1) + '/' + state.examList.length;
 
-  // Lives
-  const livesDiv = document.getElementById('examLives');
-  livesDiv.innerHTML = '';
-  for (let i = 0; i < 3; i++) {
-    livesDiv.innerHTML += '<span class="heart' + (i >= state.examLives ? ' lost' : '') + '">❤️</span>';
-  }
+  renderExamLives();
 
-  const correct = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
-  const wrongPool = shuffle(especies.filter(e => e.id !== sp.id)).map(e =>
-    e.nombreCientifico + ' | ' + e.familia + ' | ' + e.grupo
-  );
-  const options = shuffle([correct, ...pickRandom(wrongPool, 3)]);
+  const correct   = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
+  const wrongPool = shuffle(especies.filter(e => e.id !== sp.id))
+                      .map(e => e.nombreCientifico + ' | ' + e.familia + ' | ' + e.grupo);
+  const options   = shuffle([correct, ...pickRandom(wrongPool, 3)]);
 
-  const optsDiv = document.getElementById('examOptions');
-  optsDiv.innerHTML = options.map(o =>
+  document.getElementById('examOptions').innerHTML = options.map(o =>
     '<button class="option-btn" onclick="examAnswer(this, \'' + o.replace(/'/g, "\\'") + '\')">' + o + '</button>'
   ).join('');
 }
 
+function renderExamLives() {
+  let html = '';
+  for (let i = 0; i < 3; i++) {
+    html += '<span class="heart' + (i >= state.examLives ? ' lost' : '') + '">❤️</span>';
+  }
+  document.getElementById('examLives').innerHTML = html;
+}
+
 function examAnswer(btn, answer) {
-  const sp = state.examList[state.examIdx];
+  const sp      = state.examList[state.examIdx];
   const correct = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
   const isCorrect = answer === correct;
 
-  const btns = document.querySelectorAll('#examOptions .option-btn');
-  btns.forEach(b => b.disabled = true);
-  btns.forEach(b => {
+  document.querySelectorAll('#examOptions .option-btn').forEach(b => {
+    b.disabled = true;
     if (b.textContent === correct) b.classList.add('correct');
-    if (b === btn && !isCorrect) b.classList.add('wrong');
+    if (b === btn && !isCorrect)   b.classList.add('wrong');
   });
 
   const fb = document.getElementById('examFeedback');
@@ -684,64 +658,44 @@ function examAnswer(btn, answer) {
   } else {
     state.examLives--;
     state.streak = 0;
-    fb.innerHTML = '<p style="color:var(--red);font-weight:600;">❌ Incorrecto</p>' +
+    fb.innerHTML =
+      '<p style="color:var(--red);font-weight:600;">❌ Incorrecto</p>' +
       '<p style="font-size:0.9rem;"><i>' + correct + '</i></p>' +
       '<p style="font-size:0.85rem;color:var(--text-light);margin-top:4px;">' + sp.caracteristicasClave + '</p>';
     showFlash(false);
-    // Update lives
-    const livesDiv = document.getElementById('examLives');
-    livesDiv.innerHTML = '';
-    for (let i = 0; i < 3; i++) {
-      livesDiv.innerHTML += '<span class="heart' + (i >= state.examLives ? ' lost' : '') + '">❤️</span>';
-    }
+    renderExamLives();
   }
 
-  state.examResults.push({
-    especie: sp,
-    correct: isCorrect,
-    respuestaUsuario: answer,
-    respuestaCorrecta: correct
-  });
-
+  state.examResults.push({ especie: sp, correct: isCorrect, respuestaUsuario: answer, respuestaCorrecta: correct });
   updateHeaderStats();
 
-  if (state.examLives <= 0 || state.examIdx >= state.examList.length - 1) {
-    document.getElementById('examNextBtn').textContent = 'Ver resultado';
-  } else {
-    document.getElementById('examNextBtn').textContent = 'Siguiente →';
-  }
+  document.getElementById('examNextBtn').textContent   =
+    (state.examLives <= 0 || state.examIdx >= state.examList.length - 1) ? 'Ver resultado' : 'Siguiente →';
   document.getElementById('examNextBtn').style.display = 'block';
 }
 
 function examNext() {
   state.examIdx++;
-  if (state.examIdx >= state.examList.length || state.examLives <= 0) {
-    finishExam();
-  } else {
-    showExamQuestion();
-  }
+  if (state.examIdx >= state.examList.length || state.examLives <= 0) finishExam();
+  else showExamQuestion();
 }
 
 function finishExam() {
-  const total = state.examList.length;
-  const answered = state.examResults.length;
-  const pct = answered > 0 ? Math.round(state.examCorrect / total * 100) : 0;
-  const note = (state.examCorrect / 2).toFixed(1);
+  const total    = state.examList.length;
+  const pct      = state.examResults.length > 0 ? Math.round(state.examCorrect / total * 100) : 0;
+  const note     = (state.examCorrect / 2).toFixed(1);
 
-  const overlay = document.getElementById('scoreOverlay');
   document.getElementById('scoreTitle').textContent = '📝 Resultado del Examen';
-  document.getElementById('scoreBig').textContent = state.examCorrect + '/' + total;
-  document.getElementById('scoreDetail').innerHTML =
+  document.getElementById('scoreBig').textContent   = state.examCorrect + '/' + total;
+  document.getElementById('scoreDetail').innerHTML  =
     'Nota: <strong>' + note + '/10</strong> &nbsp;|&nbsp; ' + pct + '% aciertos' +
     (state.examLives <= 0 ? '<br><span style="color:var(--red);">❌ Te has quedado sin vidas</span>' : '');
-
   document.getElementById('scoreActions').innerHTML =
     '<button class="btn btn-block btn-green" onclick="startExam()">Repetir examen</button>' +
     '<button class="btn btn-block btn-outline" onclick="reviewExam()">Repasar fallos</button>' +
     '<button class="btn btn-block btn-outline" onclick="goHome()">Ir al inicio</button>';
-  overlay.classList.add('active');
+  document.getElementById('scoreOverlay').classList.add('active');
 
-  // Update best streak
   if (state.streak > state.recordStreak) {
     state.recordStreak = state.streak;
     saveFullState();
@@ -750,24 +704,26 @@ function finishExam() {
 
 function reviewExam() {
   document.getElementById('scoreOverlay').classList.remove('active');
-  document.getElementById('examArea').style.display = 'none';
+  document.getElementById('examArea').style.display    = 'none';
   const resultsDiv = document.getElementById('examResults');
   resultsDiv.style.display = 'block';
 
   const wrong = state.examResults.filter(r => !r.correct);
   if (wrong.length === 0) {
-    resultsDiv.innerHTML = '<div class="card"><p style="text-align:center;">🎉 ¡Todos correctos! No hay nada que repasar.</p>' +
+    resultsDiv.innerHTML =
+      '<div class="card"><p style="text-align:center;">🎉 ¡Todos correctos! No hay nada que repasar.</p>' +
       '<button class="btn btn-block btn-green" style="margin-top:12px;" onclick="goHome()">Volver al inicio</button></div>';
     return;
   }
 
-  resultsDiv.innerHTML = '<h3>Repaso de fallos (' + wrong.length + ')</h3>' +
+  resultsDiv.innerHTML =
+    '<h3>Repaso de fallos (' + wrong.length + ')</h3>' +
     '<div class="results-list">' +
     wrong.map(r => {
       const sp = r.especie;
       return '<div class="result-item wrong">' +
         '<h4><i>' + sp.nombreCientifico + '</i></h4>' +
-        '<div class="detail' + '">' + sp.familia + ' · ' + sp.grupo + '</div>' +
+        '<div class="detail">' + sp.familia + ' · ' + sp.grupo + '</div>' +
         '<div class="detail" style="margin-top:4px;">' + sp.caracteristicasClave + '</div>' +
         '</div>';
     }).join('') +
@@ -777,10 +733,10 @@ function reviewExam() {
 
 // ========== RANDOM ==========
 function startRandom() {
-  state.randomList = shuffle([...especies]);
-  state.randomIdx = 0;
-  state.streak = 0;
-  state.bestStreak = state.recordStreak;
+  state.randomList        = shuffle([...especies]);
+  state.randomIdx         = 0;
+  state.streak            = 0;
+  state.bestStreak        = state.recordStreak;
   state.randomQuestionType = null;
   showScreen('screenRandom');
   updateRandomStreak();
@@ -790,68 +746,54 @@ function startRandom() {
 function showRandomQuestion() {
   if (state.randomIdx >= state.randomList.length) {
     state.randomList = shuffle([...especies]);
-    state.randomIdx = 0;
+    state.randomIdx  = 0;
   }
   const sp = state.randomList[state.randomIdx];
-
-  const img = document.getElementById('randomImage');
-  const ph = document.getElementById('randomPlaceholder');
-  img.style.display = 'none';
-  ph.style.display = 'block';
-  ph.textContent = 'Cargando imagen...';
-  if (sp.fotos && sp.fotos.length) {
-    sp._fotoIdx = (sp._fotoIdx || 0) % sp.fotos.length;
-    img.src = sp.fotos[sp._fotoIdx];
-    sp._fotoIdx = (sp._fotoIdx + 1) % sp.fotos.length;
-    img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
-    img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
-  } else {
-    ph.textContent = '📷 ' + sp.nombreCientifico;
-  }
+  loadFoto(sp,
+    document.getElementById('randomImage'),
+    document.getElementById('randomPlaceholder')
+  );
 
   document.getElementById('randomFeedback').style.display = 'none';
-  document.getElementById('randomNextBtn').style.display = 'none';
+  document.getElementById('randomNextBtn').style.display  = 'none';
 
-  // Pick a random question type
   const types = ['familia', 'nombre', 'completo'];
   state.randomQuestionType = types[Math.floor(Math.random() * 3)];
-  let correct = '';
+
+  let correct   = '';
   let wrongPool = [];
 
   if (state.randomQuestionType === 'familia') {
-    correct = sp.familia;
+    correct   = sp.familia;
     wrongPool = getFamilies().filter(f => f !== sp.familia);
   } else if (state.randomQuestionType === 'nombre') {
-    correct = sp.nombreCientifico;
+    correct   = sp.nombreCientifico;
     wrongPool = shuffle(especies.filter(e => e.id !== sp.id)).map(e => e.nombreCientifico);
   } else {
-    correct = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
-    wrongPool = shuffle(especies.filter(e => e.id !== sp.id)).map(e =>
-      e.nombreCientifico + ' | ' + e.familia + ' | ' + e.grupo
-    );
+    correct   = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
+    wrongPool = shuffle(especies.filter(e => e.id !== sp.id))
+                  .map(e => e.nombreCientifico + ' | ' + e.familia + ' | ' + e.grupo);
   }
 
   const options = shuffle([correct, ...pickRandom(wrongPool, 3)]);
-  const optsDiv = document.getElementById('randomOptions');
-  optsDiv.innerHTML = options.map(o =>
+  document.getElementById('randomOptions').innerHTML = options.map(o =>
     '<button class="option-btn" onclick="randomAnswer(this, \'' + o.replace(/'/g, "\\'") + '\')">' + o + '</button>'
   ).join('');
 }
 
 function randomAnswer(btn, answer) {
   const sp = state.randomList[state.randomIdx];
-  const btns = document.querySelectorAll('#randomOptions .option-btn');
   let correctAns = '';
-  if (state.randomQuestionType === 'familia') correctAns = sp.familia;
-  else if (state.randomQuestionType === 'nombre') correctAns = sp.nombreCientifico;
+  if (state.randomQuestionType === 'familia')      correctAns = sp.familia;
+  else if (state.randomQuestionType === 'nombre')  correctAns = sp.nombreCientifico;
   else correctAns = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
 
   const isCorrect = answer === correctAns;
 
-  btns.forEach(b => b.disabled = true);
-  btns.forEach(b => {
+  document.querySelectorAll('#randomOptions .option-btn').forEach(b => {
+    b.disabled = true;
     if (b.textContent === correctAns) b.classList.add('correct');
-    if (b === btn && !isCorrect) b.classList.add('wrong');
+    if (b === btn && !isCorrect)      b.classList.add('wrong');
   });
 
   const fb = document.getElementById('randomFeedback');
@@ -863,7 +805,8 @@ function randomAnswer(btn, answer) {
     showFlash(true);
   } else {
     state.streak = 0;
-    fb.innerHTML = '<p style="color:var(--red);font-weight:600;">❌ Incorrecto</p>' +
+    fb.innerHTML =
+      '<p style="color:var(--red);font-weight:600;">❌ Incorrecto</p>' +
       '<p style="font-size:0.9rem;"><i>' + correctAns + '</i></p>' +
       '<p style="font-size:0.85rem;color:var(--text-light);margin-top:4px;">' + sp.caracteristicasClave + '</p>';
     showFlash(false);
@@ -882,7 +825,7 @@ function randomAnswer(btn, answer) {
 
 function updateRandomStreak() {
   document.getElementById('randomStreakNum').textContent = state.streak;
-  document.getElementById('randomBestNum').textContent = state.recordStreak;
+  document.getElementById('randomBestNum').textContent  = state.recordStreak;
 }
 
 function randomNext() {
@@ -893,7 +836,7 @@ function randomNext() {
 // ========== FEEDBACK FLASH ==========
 function showFlash(correct) {
   const el = document.createElement('div');
-  el.className = 'feedback-flash ' + (correct ? 'correct' : 'wrong');
+  el.className   = 'feedback-flash ' + (correct ? 'correct' : 'wrong');
   el.textContent = correct ? '✅' : '❌';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 800);
