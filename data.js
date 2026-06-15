@@ -1,4 +1,4 @@
-const especies = [
+﻿const especies = [
   {
     id: "cupressus-sempervirens",
     nombreCientifico: "Cupressus sempervirens",
@@ -165,7 +165,7 @@ const especies = [
     familia: "Asteraceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba anual, capítulos solitarios, flores liguladas amarillas con tubo purpúreo, brácteas involucrales con apéndice ancho",
-    fotos: ["img/asteraceae/anacyclus-radiatus-1.jpg", "img/asteraceae/anacyclus-radiatus-2.jpg"]
+    fotos: ["img/asteraceae/anacyclus-radiatus-1.jpg", "img/asteraceae/anacyclus-radiatus-2.jpg", "img/asteraceae/anacyclus-radiatus-3.jpg"]
   },
   {
     id: "carlina-corymbosa",
@@ -181,7 +181,7 @@ const especies = [
     familia: "Asteraceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba perenne monocárpica, capítulos agrupados en racimo, brácteas involucrales espinosas, hojas espinosas y tomentosas",
-    fotos: ["img/asteraceae/carlina-racemosa-1.jpg", "img/asteraceae/carlina-racemosa-2.jpg", "img/asteraceae/carlina-racemosa-3.jpg"]
+    fotos: ["img/asteraceae/carlina-racemosa-1.jpg", "img/asteraceae/carlina-racemosa-2.jpg"]
   },
   {
     id: "chamaemelum-fuscatum",
@@ -413,7 +413,7 @@ const especies = [
     familia: "Cistaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Arbusto de hasta 60 cm, hojas lineares tomentosas, flores blancas en umbela terminal con mancha amarilla en la base de los pétalos",
-    fotos: ["img/cistaceae/halimium-umbellatum-1.jpg"]
+    fotos: ["img/cistaceae/halimium-umbellatum-1.jpg", "img/cistaceae/halimium-umbellatum-2.jpg"]
   },
   {
     id: "crassula-tillaea",
@@ -421,7 +421,7 @@ const especies = [
     familia: "Crassulaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba anual diminuta de hasta 5 cm, hojas opuestas carnosas ovales, flores rosadas axilares solitarias muy pequeñas",
-    fotos: ["img/crassulaceae/crassula-tillaea-1.jpg"]
+    fotos: ["img/crassulaceae/crassula-tillaea-1.jpg", "img/crassulaceae/crassula-tillaea-2.jpg"]
   },
   {
     id: "sedum-album",
@@ -429,7 +429,7 @@ const especies = [
     familia: "Crassulaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba perenne suculenta, hojas cilíndricas carnosas rojizas, inflorescencia en panícula con flores blancas estrelladas de 5 pétalos",
-    fotos: ["img/crassulaceae/sedum-album-1.jpg", "img/crassulaceae/sedum-album-2.jpg"]
+    fotos: ["img/crassulaceae/sedum-album-1.jpg"]
   },
   {
     id: "sedum-sediforme",
@@ -437,7 +437,7 @@ const especies = [
     familia: "Crassulaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba perenne suculenta de hasta 30 cm, hojas glaucas carnosas cilíndricas, inflorescencia con flores blancas o amarillo pálido",
-    fotos: ["img/crassulaceae/sedum-sediforme-1.jpg", "img/crassulaceae/sedum-sediforme-2.jpg"]
+    fotos: ["img/crassulaceae/sedum-sediforme-1.jpg"]
   },
   {
     id: "carex-divulsa",
@@ -453,7 +453,7 @@ const especies = [
     familia: "Cyperaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba perenne con tubérculos subterráneos, tallos trígonos, hojas basales, inflorescencia umbeliforme con 3-5 brácteas, espigas rojizas",
-    fotos: ["img/cyperaceae/cyperus-rotundus-1.jpg"]
+    fotos: ["img/cyperaceae/cyperus-rotundus-1.jpg", "img/cyperaceae/cyperus-rotundus-2.jpg"]
   },
   {
     id: "scirpoides-holoschoenus",
@@ -469,7 +469,7 @@ const especies = [
     familia: "Dioscoreaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Enredadera perenne con tubérculo radical, hojas acorazonadas brillantes, bayas rojas brillantes tóxicas, tallos volubles",
-    fotos: ["img/dioscoreaceae/tamus-communis-1.jpg", "img/dioscoreaceae/tamus-communis-2.jpg"]
+    fotos: ["img/dioscoreaceae/tamus-communis-1.jpg"]
   },
   {
     id: "arbutus-unedo",
@@ -549,7 +549,7 @@ const especies = [
     familia: "Fabaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba anual de hasta 1 m, hojas palmeadas con 5-9 folíolos lanceolados, flores azules en racimos verticales, legumbre peluda",
-    fotos: ["img/fabaceae/lupinus-angustifolius-1.jpg"]
+    fotos: ["img/fabaceae/lupinus-angustifolius-1.jpg", "img/fabaceae/lupinus-angustifolius-2.jpg"]
   },
   {
     id: "retama-sphaerocarpa",
@@ -557,7 +557,7 @@ const especies = [
     familia: "Fabaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Arbusto de hasta 3 m, tallos verdes inclinados sin hojas, flores amarillas pequeñas, fruto en legumbre globosa",
-    fotos: ["img/fabaceae/retama-sphaerocarpa-1.jpg"]
+    fotos: ["img/fabaceae/retama-sphaerocarpa-1.jpg", "img/fabaceae/retama-sphaerocarpa-2.jpg"]
   },
   {
     id: "trifolium-angustifolium",
@@ -565,7 +565,7 @@ const especies = [
     familia: "Fabaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba anual de hasta 50 cm, hojas trifoliadas con folíolos lineares, inflorescencia en capítulo cilíndrico de flores rosadas",
-    fotos: ["img/fabaceae/trifolium-angustifolium-1.jpg", "img/fabaceae/trifolium-angustifolium-2.jpg"]
+    fotos: ["img/fabaceae/trifolium-angustifolium-1.jpg"]
   },
   {
     id: "trifolium-campestre",
@@ -573,7 +573,7 @@ const especies = [
     familia: "Fabaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba anual de hasta 30 cm, hojas trifoliadas con folíolos obovados, inflorescencia en capítulo globoso de flores amarillas que se vuelven pardas",
-    fotos: ["img/fabaceae/trifolium-campestre-1.jpg", "img/fabaceae/trifolium-campestre-2.jpg"]
+    fotos: ["img/fabaceae/trifolium-campestre-1.jpg"]
   },
   {
     id: "trifolium-repens",
@@ -613,7 +613,7 @@ const especies = [
     familia: "Fagaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Árbol caducifolio de hasta 25 m, hojas grandes aserradas lanceoladas, flores en amentos, fruto en erizo con 1-3 aquenios",
-    fotos: ["img/fagaceae/castanea-sativa-1.jpg"]
+    fotos: ["img/fagaceae/castanea-sativa-1.jpg", "img/fagaceae/castanea-sativa-2.jpg"]
   },
   {
     id: "quercus-coccifera",
@@ -629,7 +629,7 @@ const especies = [
     familia: "Fagaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Árbol perenne o marcescente de hasta 20 m, hojas variables con lóbulos poco profundos y envés tomentoso, bellotas solitarias",
-    fotos: ["img/fagaceae/quercus-faginea-1.jpg", "img/fagaceae/quercus-faginea-2.jpg"]
+    fotos: ["img/fagaceae/quercus-faginea-1.jpg"]
   },
   {
     id: "quercus-pyrenaica",
@@ -637,7 +637,7 @@ const especies = [
     familia: "Fagaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Árbol caducifolio de hasta 20 m, hojas grandes lobuladas con envés tomentoso, bellotas con cúpula tomentosa, brotes lanosos",
-    fotos: ["img/fagaceae/quercus-pyrenaica-1.jpg"]
+    fotos: ["img/fagaceae/quercus-pyrenaica-1.jpg", "img/fagaceae/quercus-pyrenaica-2.jpg"]
   },
   {
     id: "quercus-rotundifolia",
@@ -669,7 +669,7 @@ const especies = [
     familia: "Iridaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba perenne bulbosa de hasta 40 cm, hojas basales lineares, flores azul-violáceas con tubo corto, fruto en cápsula",
-    fotos: ["img/iridaceae/gynandriris-sisyrinchium-1.jpg", "img/iridaceae/gynandriris-sisyrinchium-2.jpg"]
+    fotos: ["img/iridaceae/gynandriris-sisyrinchium-1.jpg"]
   },
   {
     id: "cleonia-lusitanica",
@@ -685,7 +685,7 @@ const especies = [
     familia: "Lamiaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba anual de hasta 30 cm, hojas opuestas redondeadas y abrazadoras, flores rosadas bilabiadas en verticilastros",
-    fotos: ["img/lamiaceae/lamium-amplexicaule-1.jpg"]
+    fotos: ["img/lamiaceae/lamium-amplexicaule-1.jpg", "img/lamiaceae/lamium-amplexicaule-2.jpg"]
   },
   {
     id: "lavandula-pedunculata",
@@ -709,7 +709,7 @@ const especies = [
     familia: "Lamiaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba perenne aromática de hasta 40 cm, hojas ovales opuestas, flores lilas en verticilastros axilares, tallos postrados",
-    fotos: ["img/lamiaceae/mentha-pulegium-1.jpg"]
+    fotos: ["img/lamiaceae/mentha-pulegium-1.jpg", "img/lamiaceae/mentha-pulegium-2.jpg"]
   },
   {
     id: "rosmarinus-officinalis",
@@ -725,7 +725,7 @@ const especies = [
     familia: "Lamiaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba anual de hasta 30 cm, hojas ovales crenadas, flores rosadas bilabiadas con manchas púrpuras en verticilastros",
-    fotos: ["img/lamiaceae/stachys-arvensis-1.jpg", "img/lamiaceae/stachys-arvensis-2.jpg"]
+    fotos: ["img/lamiaceae/stachys-arvensis-1.jpg"]
   },
   {
     id: "stachys-ocymastrum",
@@ -733,7 +733,7 @@ const especies = [
     familia: "Lamiaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba anual de hasta 40 cm, hojas ovales crenado-aserradas, flores púrpura-violáceas en verticilastros multifloros",
-    fotos: ["img/lamiaceae/stachys-ocymastrum-1.jpg", "img/lamiaceae/stachys-ocymastrum-2.jpg"]
+    fotos: ["img/lamiaceae/stachys-ocymastrum-1.jpg"]
   },
   {
     id: "teucrium-capitatum",
@@ -741,7 +741,7 @@ const especies = [
     familia: "Lamiaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Arbustillo aromático de hasta 40 cm, hojas lineares tomentosas, inflorescencia en capítulo terminal denso de flores blancas con labio superior ausente",
-    fotos: ["img/lamiaceae/teucrium-capitatum-1.jpg"]
+    fotos: ["img/lamiaceae/teucrium-capitatum-1.jpg", "img/lamiaceae/teucrium-capitatum-2.jpg"]
   },
   {
     id: "teucrium-fruticans",
@@ -757,7 +757,7 @@ const especies = [
     familia: "Liliaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba perenne bulbosa de hasta 1,5 m, hojas planas lineares, inflorescencia en umbela esférica con flores rosadas, bulbo grande",
-    fotos: ["img/liliaceae/allium-ampeloprasum-1.jpg", "img/liliaceae/allium-ampeloprasum-2.jpg"]
+    fotos: ["img/liliaceae/allium-ampeloprasum-1.jpg"]
   },
   {
     id: "allium-neapolitanum",
@@ -765,7 +765,7 @@ const especies = [
     familia: "Liliaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba perenne bulbosa de hasta 30 cm, hojas basales lineares, inflorescencia en umbela de flores blancas estrelladas",
-    fotos: ["img/liliaceae/allium-neapolitanum-1.jpg", "img/liliaceae/allium-neapolitanum-2.jpg"]
+    fotos: ["img/liliaceae/allium-neapolitanum-1.jpg"]
   },
   {
     id: "asparagus-acutifolius",
@@ -773,7 +773,7 @@ const especies = [
     familia: "Liliaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Arbusto perenne espinoso de hasta 1,5 m, tallos con espinas, cladodios fasciculados, fruto en baya negra",
-    fotos: ["img/liliaceae/asparagus-acutifolius-1.jpg", "img/liliaceae/asparagus-acutifolius-2.jpg"]
+    fotos: ["img/liliaceae/asparagus-acutifolius-1.jpg", "img/liliaceae/asparagus-acutifolius-2.jpg", "img/liliaceae/asparagus-acutifolius-3.jpg"]
   },
   {
     id: "asparagus-albus",
@@ -781,7 +781,7 @@ const especies = [
     familia: "Liliaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Arbusto perenne blanquecino de hasta 1 m, tallos con espinas, cladodios fasciculados finos, fruto en baya roja",
-    fotos: ["img/liliaceae/asparagus-albus-1.jpg"]
+    fotos: ["img/liliaceae/asparagus-albus-1.jpg", "img/liliaceae/asparagus-albus-2.jpg"]
   },
   {
     id: "malva-hispanica",
@@ -813,7 +813,7 @@ const especies = [
     familia: "Malvaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba perenne de hasta 1 m, hojas palmatífidas crenadas, flores grandes rosado-purpúreas con venas más oscuras, fruto en esquizocarpo",
-    fotos: ["img/malvaceae/malva-sylvestris-1.jpg", "img/malvaceae/malva-sylvestris-2.jpg"]
+    fotos: ["img/malvaceae/malva-sylvestris-1.jpg"]
   },
   {
     id: "ficus-carica",
@@ -829,7 +829,7 @@ const especies = [
     familia: "Myrtaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Árbol perenne de hasta 30 m, hojas juveniles opuestas y adultas alternas lanceoladas colgantes, fruto en cápsula, corteza lisa",
-    fotos: ["img/myrtaceae/eucalyptus-camaldulensis-1.jpg"]
+    fotos: ["img/myrtaceae/eucalyptus-camaldulensis-1.jpg", "img/myrtaceae/eucalyptus-camaldulensis-2.jpg"]
   },
   {
     id: "myrtus-communis",
@@ -837,7 +837,7 @@ const especies = [
     familia: "Myrtaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Arbusto perenne aromático de hasta 3 m, hojas opuestas ovales puntiagudas, flores blancas con estambres numerosos, fruto en baya negra",
-    fotos: ["img/myrtaceae/myrtus-communis-1.jpg"]
+    fotos: ["img/myrtaceae/myrtus-communis-1.jpg", "img/myrtaceae/myrtus-communis-2.jpg"]
   },
   {
     id: "jasminum-fruticans",
@@ -845,7 +845,7 @@ const especies = [
     familia: "Oleaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Arbusto de hasta 2 m, hojas trifoliadas alternas, flores amarillas tubulares con 5 lóbulos, fruto en baya negra brillante",
-    fotos: ["img/oleaceae/jasminum-fruticans-1.jpg", "img/oleaceae/jasminum-fruticans-2.jpg"]
+    fotos: ["img/oleaceae/jasminum-fruticans-1.jpg"]
   },
   {
     id: "fraxinus-angustifolia",
@@ -861,7 +861,7 @@ const especies = [
     familia: "Oleaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Árbol perenne de hasta 10 m, hojas opuestas lanceoladas con envés plateado, flores pequeñas blanquecinas, fruto en drupa (aceituna)",
-    fotos: ["img/oleaceae/olea-europaea-1.jpg", "img/oleaceae/olea-europaea-2.jpg"]
+    fotos: ["img/oleaceae/olea-europaea-1.jpg"]
   },
   {
     id: "paeonia-broteri",
@@ -869,7 +869,7 @@ const especies = [
     familia: "Paeoniaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba perenne de hasta 60 cm, hojas biternadas con segmentos lanceolados, flores grandes rosado-purpúreas de 5-8 pétalos, fruto en folículo",
-    fotos: ["img/paeoniaceae/paeonia-broteri-1.jpg"]
+    fotos: ["img/paeoniaceae/paeonia-broteri-1.jpg", "img/paeoniaceae/paeonia-broteri-2.jpg"]
   },
   {
     id: "fumaria-capreolata",
@@ -877,7 +877,7 @@ const especies = [
     familia: "Papaveraceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba anual trepadora de hasta 1 m, hojas pinnatisectas glaucas, inflorescencia en racimo con flores blancas con ápice púrpura",
-    fotos: ["img/papaveraceae/fumaria-capreolata-1.jpg"]
+    fotos: ["img/papaveraceae/fumaria-capreolata-1.jpg", "img/papaveraceae/fumaria-capreolata-2.jpg"]
   },
   {
     id: "papaver-hybridum",
@@ -901,7 +901,7 @@ const especies = [
     familia: "Plantaginaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba anual de hasta 30 cm, hojas lineares opuestas, inflorescencia en espiga densa ovoide, fruto en pixidio",
-    fotos: ["img/plantaginaceae/plantago-afra-1.jpg", "img/plantaginaceae/plantago-afra-2.jpg"]
+    fotos: ["img/plantaginaceae/plantago-afra-1.jpg"]
   },
   {
     id: "plantago-coronopus",
@@ -909,7 +909,7 @@ const especies = [
     familia: "Plantaginaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba anual o bienal, hojas en roseta pinnatífidas, inflorescencia en espiga cilíndrica, flores pequeñas con corola blanquecina",
-    fotos: ["img/plantaginaceae/plantago-coronopus-1.jpg", "img/plantaginaceae/plantago-coronopus-2.jpg"]
+    fotos: ["img/plantaginaceae/plantago-coronopus-1.jpg"]
   },
   {
     id: "plantago-lagopus",
@@ -1061,7 +1061,7 @@ const especies = [
     familia: "Polygonaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba perenne de hasta 40 cm, hojas sagitadas con lóbulos basales divergentes, inflorescencia en panícula laxa",
-    fotos: ["img/polygonaceae/rumex-scutatus-1.jpg"]
+    fotos: ["img/polygonaceae/rumex-scutatus-1.jpg", "img/polygonaceae/rumex-scutatus-2.jpg"]
   },
   {
     id: "rumex-pulcher",
@@ -1085,7 +1085,7 @@ const especies = [
     familia: "Ranunculaceae",
     grupo: "Angiosperma",
     caracteristicasClave: "Hierba anual de hasta 40 cm, hojas palmatífidas con lóbulos redondeados, flores amarillas con 5 pétalos, fruto con tubérculos",
-    fotos: ["img/ranunculaceae/ranunculus-muricatus-1.jpg", "img/ranunculaceae/ranunculus-muricatus-2.jpg"]
+    fotos: ["img/ranunculaceae/ranunculus-muricatus-1.jpg"]
   },
   {
     id: "ranunculus-peltatus",
