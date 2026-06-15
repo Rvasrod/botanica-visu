@@ -1,4 +1,4 @@
-const CACHE_NAME = 'botanica-visu-v2';
+const CACHE_NAME = 'botanica-visu-v3';
 const ASSETS_TO_CACHE = [
   'index.html',
   'styles.css',

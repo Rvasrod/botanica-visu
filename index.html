@@ -222,19 +222,14 @@ function loadFoto(sp, imgEl, phEl) {
     return;
   }
 
-  // Índice actual para esta especie, avanza en cada llamada
-  const idx = (state.fotoIdx[sp.id] || 0) % sp.fotos.length;
-  state.fotoIdx[sp.id] = idx + 1; // el siguiente uso cogerá la foto siguiente
-
-  imgEl.src = sp.fotos[idx];
+  imgEl.src = sp.fotos[Math.floor(Math.random() * sp.fotos.length)];
   imgEl.onload  = () => { imgEl.style.display = 'block'; phEl.style.display = 'none'; };
   imgEl.onerror = () => { phEl.textContent = '📷 ' + sp.nombreCientifico; };
 }
 
 // ========== STATE ==========
 let state = {
-  // foto rotation — clave: id de especie, valor: próximo índice a usar
-  fotoIdx: {},
+
 
   studyList: [],
   studyIdx: 0,
