@@ -333,8 +333,8 @@ function showStudyCard() {
   img.style.display = 'none';
   ph.style.display = 'block';
   ph.textContent = 'Cargando imagen...';
-  if (sp.fotos && sp.fotos[0]) {
-    img.src = sp.fotos[0];
+  if (sp.fotos && sp.fotos.length) {
+    img.src = sp.fotos[Math.floor(Math.random() * sp.fotos.length)];
     img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
     img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
   } else {
@@ -467,8 +467,8 @@ function showLevelQuestion() {
   img.style.display = 'none';
   ph.style.display = 'block';
   ph.textContent = 'Cargando imagen...';
-  if (sp.fotos && sp.fotos[0]) {
-    img.src = sp.fotos[0];
+  if (sp.fotos && sp.fotos.length) {
+    img.src = sp.fotos[Math.floor(Math.random() * sp.fotos.length)];
     img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
     img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
   } else {
@@ -624,8 +624,8 @@ function showExamQuestion() {
   img.style.display = 'none';
   ph.style.display = 'block';
   ph.textContent = 'Cargando imagen...';
-  if (sp.fotos && sp.fotos[0]) {
-    img.src = sp.fotos[0];
+  if (sp.fotos && sp.fotos.length) {
+    img.src = sp.fotos[Math.floor(Math.random() * sp.fotos.length)];
     img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
     img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
   } else {
@@ -793,8 +793,8 @@ function showRandomQuestion() {
   img.style.display = 'none';
   ph.style.display = 'block';
   ph.textContent = 'Cargando imagen...';
-  if (sp.fotos && sp.fotos[0]) {
-    img.src = sp.fotos[0];
+  if (sp.fotos && sp.fotos.length) {
+    img.src = sp.fotos[Math.floor(Math.random() * sp.fotos.length)];
     img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
     img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
   } else {
