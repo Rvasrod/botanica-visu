@@ -334,7 +334,9 @@ function showStudyCard() {
   ph.style.display = 'block';
   ph.textContent = 'Cargando imagen...';
   if (sp.fotos && sp.fotos.length) {
-    img.src = sp.fotos[Math.floor(Math.random() * sp.fotos.length)];
+    sp._fotoIdx = (sp._fotoIdx || 0) % sp.fotos.length;
+    img.src = sp.fotos[sp._fotoIdx];
+    sp._fotoIdx = (sp._fotoIdx + 1) % sp.fotos.length;
     img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
     img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
   } else {
@@ -468,7 +470,9 @@ function showLevelQuestion() {
   ph.style.display = 'block';
   ph.textContent = 'Cargando imagen...';
   if (sp.fotos && sp.fotos.length) {
-    img.src = sp.fotos[Math.floor(Math.random() * sp.fotos.length)];
+    sp._fotoIdx = (sp._fotoIdx || 0) % sp.fotos.length;
+    img.src = sp.fotos[sp._fotoIdx];
+    sp._fotoIdx = (sp._fotoIdx + 1) % sp.fotos.length;
     img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
     img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
   } else {
@@ -625,7 +629,9 @@ function showExamQuestion() {
   ph.style.display = 'block';
   ph.textContent = 'Cargando imagen...';
   if (sp.fotos && sp.fotos.length) {
-    img.src = sp.fotos[Math.floor(Math.random() * sp.fotos.length)];
+    sp._fotoIdx = (sp._fotoIdx || 0) % sp.fotos.length;
+    img.src = sp.fotos[sp._fotoIdx];
+    sp._fotoIdx = (sp._fotoIdx + 1) % sp.fotos.length;
     img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
     img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
   } else {
@@ -794,7 +800,9 @@ function showRandomQuestion() {
   ph.style.display = 'block';
   ph.textContent = 'Cargando imagen...';
   if (sp.fotos && sp.fotos.length) {
-    img.src = sp.fotos[Math.floor(Math.random() * sp.fotos.length)];
+    sp._fotoIdx = (sp._fotoIdx || 0) % sp.fotos.length;
+    img.src = sp.fotos[sp._fotoIdx];
+    sp._fotoIdx = (sp._fotoIdx + 1) % sp.fotos.length;
     img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; };
     img.onerror = () => { ph.textContent = '📷 ' + sp.nombreCientifico; };
   } else {
