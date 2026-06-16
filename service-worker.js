@@ -5,7 +5,14 @@ const ASSETS_TO_CACHE = [
   'data.js',
   'manifest.json',
   'img/icon-192.png',
-  'img/icon-512.png'
+  'img/icon-512.png',
+  'detective/detective.css',
+  'detective/detective-storage.js',
+  'detective/detective-achievements.js',
+  'detective/detective-stats.js',
+  'detective/detective-engine.js',
+  'detective/detective-ui.js',
+  'detective/detective.js'
 ];
 
 self.addEventListener('install', event => {

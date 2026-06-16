@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="detective/detective.css">
 </head>
 <body>
 
@@ -48,6 +49,11 @@
       <div class="icon">🎲</div>
       <h3>Aleatorio</h3>
       <p>Preguntas sin límite, racha y récord</p>
+    </div>
+    <div class="home-card" onclick="detectiveIniciar()">
+      <div class="icon">🔍</div>
+      <h3>Detective</h3>
+      <p>3 fases por especie con identificación botánica</p>
     </div>
   </div>
   <div class="card" style="margin-top:12px;">
@@ -166,6 +172,67 @@
   </div>
 </div>
 
+<!-- DETECTIVE -->
+<div class="screen" id="screenDetective">
+  <button class="btn-back" onclick="detectiveSalir()">← Volver</button>
+
+  <div id="detectiveHome">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2>Modo Detective</h2>
+      <span class="tag" id="detectiveModeIndicator">Experto</span>
+    </div>
+    <p class="detective-home subtitle" id="detectiveHomeSub">Tres fases para identificar cada especie botánica</p>
+
+    <div class="detective-mode-grid">
+      <div class="detective-mode-card" onclick="detectiveSeleccionarModo('experto')">
+        <span class="icon">🎯</span>
+        <h3>Experto</h3>
+        <p>Con tiempo límite y penalización</p>
+      </div>
+      <div class="detective-mode-card" onclick="detectiveSeleccionarModo('practica')">
+        <span class="icon">📚</span>
+        <h3>Práctica</h3>
+        <p>Sin tiempo, con pistas disponibles</p>
+      </div>
+      <div class="detective-mode-card" onclick="detectiveSeleccionarModo('examen')">
+        <span class="icon">📝</span>
+        <h3>Examen</h3>
+        <p>Evaluación completa de varias especies</p>
+      </div>
+    </div>
+
+    <div class="detective-toggle" id="detectiveToggleTemporizador" onclick="detectiveToggleTemporizador()">
+      <span>⏱ Temporizador</span>
+      <div class="switch"></div>
+    </div>
+
+    <div class="card" style="margin-top:var(--space-4);cursor:pointer;" onclick="detectiveIrAEstadisticas()">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:600;">Progreso Detective</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);" id="detectiveHomeEspecies">0 / 0</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:1.1rem;font-weight:700;color:var(--green);" id="detectiveHomeLevel">Nv. 1</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);" id="detectiveHomeXP">0 XP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="detectiveStats" style="display:none;">
+    <div id="detectiveStatsContent"></div>
+  </div>
+
+  <div id="detectiveGame" style="display:none;">
+    <div class="detective-photo">
+      <img id="detectiveImage" src="" alt="" style="display:none">
+      <div class="placeholder" id="detectivePlaceholder">Cargando imagen...</div>
+    </div>
+    <div id="detectiveGameContent"></div>
+  </div>
+</div>
+
 <!-- SCORE OVERLAY -->
 <div class="score-overlay" id="scoreOverlay">
   <div class="score-modal" id="scoreModal">
@@ -177,6 +244,12 @@
 </div>
 
 <script src="data.js"></script>
+<script src="detective/detective-storage.js"></script>
+<script src="detective/detective-achievements.js"></script>
+<script src="detective/detective-stats.js"></script>
+<script src="detective/detective-engine.js"></script>
+<script src="detective/detective-ui.js"></script>
+<script src="detective/detective.js"></script>
 <script>
 // ========== UTILITIES ==========
 function shuffle(arr) {

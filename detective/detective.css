@@ -1,0 +1,193 @@
+/* ============================================================
+   BotánicaVisu — Modo Detective
+   Depende de variables CSS en styles.css
+   ============================================================ */
+
+/* ----- Detective Home / Mode Select ----- */
+.detective-home { text-align: center; }
+.detective-home .subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: var(--space-6); }
+.detective-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-bottom: var(--space-5); }
+
+.detective-mode-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  border: 2px solid var(--border-light);
+  transition: all var(--transition);
+}
+.detective-mode-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--green-border); }
+.detective-mode-card:active { transform: scale(0.97); }
+.detective-mode-card .icon { font-size: 2rem; display: block; margin-bottom: var(--space-2); }
+.detective-mode-card h3 { font-size: 0.9rem; font-weight: 600; }
+.detective-mode-card p { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
+.detective-mode-card.active-mode { border-color: var(--green); background: var(--green-bg); }
+
+.detective-exam-select { display: flex; gap: var(--space-2); justify-content: center; margin: var(--space-4) 0; }
+.detective-exam-select button {
+  padding: 10px 20px; border-radius: var(--radius-sm); border: 2px solid var(--border);
+  background: var(--bg-card); font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  transition: all var(--transition-fast); color: var(--text);
+}
+.detective-exam-select button:hover { border-color: var(--green-lighter); }
+.detective-exam-select button.selected { border-color: var(--green); background: var(--green-bg); color: var(--green-dark); }
+
+/* ----- Phase Header ----- */
+.detective-phase-header {
+  display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4); background: var(--bg-muted); border-radius: var(--radius);
+}
+.detective-phase-badge {
+  width: 32px; height: 32px; border-radius: 50%; background: var(--green);
+  color: white; font-weight: 700; font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.detective-phase-label { font-weight: 600; font-size: 0.85rem; flex: 1; }
+.detective-phase-score { font-size: 0.8rem; color: var(--text-secondary); }
+
+/* ----- Detective Photo Container ----- */
+.detective-photo {
+  width: 100%; border-radius: var(--radius); overflow: hidden;
+  background: var(--bg-muted); position: relative; aspect-ratio: 4/3;
+  display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-4);
+}
+.detective-photo img { width: 100%; height: 100%; object-fit: contain; transition: opacity var(--transition-slow); }
+.detective-photo .placeholder { color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: var(--space-5); }
+.detective-photo.shifted img { object-position: 30% center; }
+
+/* ----- Detective Clue Text ----- */
+.detective-clue {
+  background: var(--gold-bg); border: 1px solid var(--gold-border);
+  border-radius: var(--radius); padding: var(--space-4); margin-bottom: var(--space-4);
+  font-size: 0.9rem; line-height: 1.5; color: var(--text);
+  animation: fadeIn 300ms ease;
+}
+.detective-clue::before { content: '🔍 '; font-size: 1.1rem; }
+
+/* ----- Timer ----- */
+.detective-timer {
+  display: flex; align-items: center; gap: var(--space-2);
+  font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: var(--space-3);
+}
+.detective-timer-bar {
+  flex: 1; height: 6px; background: var(--bg-muted); border-radius: var(--radius-full); overflow: hidden;
+}
+.detective-timer-fill {
+  height: 100%; background: var(--green); border-radius: var(--radius-full);
+  transition: width 0.3s linear;
+}
+.detective-timer-fill.warning { background: var(--gold); }
+.detective-timer-fill.danger { background: var(--red); }
+
+/* ----- Reveal Card ----- */
+.detective-reveal { animation: fadeIn 400ms ease; }
+.detective-reveal h2 { margin-bottom: var(--space-2); }
+.detective-reveal .cientifico { font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: var(--space-1); }
+.detective-reveal .rasgo-clave {
+  background: var(--green-bg); border: 1px solid var(--green-border);
+  border-radius: var(--radius); padding: var(--space-4); margin: var(--space-4) 0;
+  font-size: 0.9rem; line-height: 1.5;
+}
+.detective-reveal .rasgo-clave::before { content: '💡 '; }
+.detective-reveal .tags { display: flex; gap: var(--space-2); margin-bottom: var(--space-3); flex-wrap: wrap; }
+.detective-reveal .tags .tag {
+  display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 0.72rem;
+  font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase;
+}
+.detective-reveal .caract { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; }
+.detective-reveal .fotos-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin-top: var(--space-4);
+}
+.detective-reveal .fotos-grid img { width: 100%; border-radius: var(--radius-sm); object-fit: cover; aspect-ratio: 4/3; background: var(--bg-muted); }
+
+/* ----- Stats Panel ----- */
+.detective-stats { }
+.detective-stats .stat-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--space-3) 0; border-bottom: 1px solid var(--border-light); font-size: 0.88rem;
+}
+.detective-stats .stat-row:last-child { border-bottom: none; }
+.detective-stats .stat-label { color: var(--text-secondary); }
+.detective-stats .stat-value { font-weight: 600; }
+
+/* Progress ring (CSS-based) */
+.detective-ring {
+  width: 120px; height: 120px; border-radius: 50%;
+  background: conic-gradient(var(--green) var(--pct, 0%), var(--bg-muted) 0%);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; margin: 0 auto var(--space-4);
+}
+.detective-ring-inner {
+  width: 90px; height: 90px; border-radius: 50%; background: var(--bg-card);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.detective-ring-inner .num { font-size: 1.6rem; font-weight: 800; color: var(--green); }
+.detective-ring-inner .lbl { font-size: 0.7rem; color: var(--text-secondary); }
+
+/* ----- Achievement Badges ----- */
+.detective-achievements { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--space-3); margin-top: var(--space-4); }
+.detective-achievement {
+  background: var(--bg-card); border-radius: var(--radius); padding: var(--space-4);
+  border: 1px solid var(--border-light); text-align: center;
+  transition: all var(--transition); opacity: 0.5; filter: grayscale(0.8);
+}
+.detective-achievement.unlocked { opacity: 1; filter: none; border-color: var(--green-border); background: var(--green-bg); }
+.detective-achievement .ach-icon { font-size: 1.5rem; display: block; margin-bottom: var(--space-2); }
+.detective-achievement .ach-name { font-size: 0.78rem; font-weight: 600; }
+.detective-achievement .ach-desc { font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px; }
+
+/* ----- Progress bar within detective ----- */
+.detective-progress { margin: var(--space-4) 0; }
+.detective-progress .bar { height: 6px; background: var(--bg-muted); border-radius: var(--radius-full); overflow: hidden; }
+.detective-progress .fill { height: 100%; background: linear-gradient(90deg, var(--green-light), var(--green)); border-radius: var(--radius-full); transition: width var(--transition-slow); }
+.detective-progress .lbl { font-size: 0.75rem; color: var(--text-secondary); margin-top: var(--space-1); }
+
+/* ----- Family stats ----- */
+.detective-family-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin-top: var(--space-3); }
+.detective-family-item { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--bg-muted); font-size: 0.78rem; display: flex; justify-content: space-between; }
+.detective-family-item.mastered { background: var(--green-bg); }
+.detective-family-item .name { font-weight: 500; }
+.detective-family-item .pct { color: var(--text-secondary); }
+
+/* ----- Exam Report ----- */
+.detective-exam-report { }
+.detective-exam-report .summary { text-align: center; margin-bottom: var(--space-5); }
+.detective-exam-report .summary .big-num { font-size: 2.5rem; font-weight: 800; color: var(--green); }
+.detective-exam-report .summary .sub { font-size: 0.85rem; color: var(--text-secondary); }
+.detective-exam-report .families { margin-top: var(--space-4); }
+.detective-exam-report .families h4 { margin-bottom: var(--space-2); }
+.detective-exam-report .fam-chip { display: inline-block; padding: 4px 12px; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 500; margin: 2px; }
+.detective-exam-report .fam-chip.good { background: var(--green-bg); color: var(--green-dark); }
+.detective-exam-report .fam-chip.bad { background: var(--red-bg); color: var(--red); }
+
+/* ----- Toggle switch for mode ----- */
+.detective-toggle {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius);
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  cursor: pointer; transition: all var(--transition); font-size: 0.85rem; font-weight: 500;
+}
+.detective-toggle:hover { border-color: var(--green-border); }
+.detective-toggle.active { background: var(--green-bg); border-color: var(--green); color: var(--green-dark); }
+.detective-toggle .switch {
+  width: 40px; height: 22px; border-radius: var(--radius-full); background: var(--border);
+  position: relative; transition: background var(--transition-fast); flex-shrink: 0;
+}
+.detective-toggle .switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 18px; height: 18px; border-radius: 50%; background: white;
+  transition: transform var(--transition-fast); box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.detective-toggle.active .switch { background: var(--green); }
+.detective-toggle.active .switch::after { transform: translateX(18px); }
+
+/* ----- Practice hint button ----- */
+.detective-hint-btn {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  padding: 8px 16px; border-radius: var(--radius-sm); border: 1.5px dashed var(--gold);
+  background: var(--gold-bg); color: var(--gold); font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; transition: all var(--transition); margin-bottom: var(--space-3);
+}
+.detective-hint-btn:hover { background: #FFF3CD; }
