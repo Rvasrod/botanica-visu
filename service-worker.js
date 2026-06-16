@@ -1,4 +1,4 @@
-const CACHE_NAME = 'botanica-visu-v3';
+const CACHE_NAME = 'botanica-visu-v4';
 const ASSETS_TO_CACHE = [
   'index.html',
   'styles.css',
@@ -36,6 +36,7 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  if (!event.request.url.startsWith('http')) return;
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
