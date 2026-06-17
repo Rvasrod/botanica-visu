@@ -40,10 +40,10 @@
       <h3>Niveles</h3>
       <p>3 niveles de dificultad progresiva</p>
     </div>
-    <div class="home-card" onclick="startExam()">
+    <div class="home-card" onclick="examenIniciar()">
       <div class="icon">📝</div>
       <h3>Examen Final</h3>
-      <p>Simulacro de 20 preguntas</p>
+      <p>10 plantas · 30s · Formato Visu UCO</p>
     </div>
     <div class="home-card" onclick="startRandom()">
       <div class="icon">🎲</div>
@@ -120,31 +120,36 @@
   </div>
 </div>
 
-<!-- EXAM -->
+<!-- EXAMEN FINAL (Visu UCO) -->
 <div class="screen" id="screenExam">
-  <button class="btn-back" onclick="goHome()">← Volver</button>
-  <h2>Examen Final</h2>
-  <div id="examArea" style="display:block;">
-    <div class="exam-header">
-      <span id="examProgress">Pregunta 1/20</span>
-      <div class="lives" id="examLives">
-        <span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span>
+  <button class="btn-back" onclick="examenSalir()">← Volver</button>
+  <h2>Examen Final — Visu UCO</h2>
+  <div id="examenArea" style="display:block;">
+    <div class="examen-header">
+      <span id="examenProgreso" style="font-weight:600;">Planta 1/10</span>
+      <div class="examen-timer">
+        <div class="examen-timer-bar">
+          <div class="examen-timer-fill" id="examenTimerFill" style="width:100%"></div>
+        </div>
+        <span id="examenTimerNum" style="font-weight:700;font-size:1.1rem;min-width:42px;text-align:right;">30s</span>
       </div>
     </div>
     <div class="card fade-in">
       <div class="photo-container">
-        <img id="examImage" src="" alt="" style="display:none">
-        <div class="placeholder" id="examPlaceholder">Cargando imagen...</div>
+        <img id="examenImage" src="" alt="" style="display:none">
+        <div class="placeholder" id="examenPlaceholder">Cargando imagen...</div>
       </div>
-      <div id="examQuestionArea">
-        <p style="font-weight:600;margin-bottom:8px;">Nombre científico + Familia + Grupo:</p>
-        <div class="options-grid" id="examOptions"></div>
+      <div id="examenInputArea" style="margin-top:var(--space-4);">
+        <label for="examenInput" style="display:block;font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-2);font-weight:500;">Nombre científico (género + especie):</label>
+        <div class="examen-input-row">
+          <input type="text" id="examenInput" placeholder="Escribe el nombre científico..." autocomplete="off" autocapitalize="off" spellcheck="false" class="examen-input">
+          <button class="btn" id="examenBtn" onclick="examenResponder()">Responder</button>
+        </div>
+        <div id="examenFeedback" style="display:none;margin-top:var(--space-3);font-size:0.9rem;text-align:center;font-weight:600;padding:var(--space-3);border-radius:var(--radius-sm);"></div>
       </div>
-      <div id="examFeedback" style="display:none;margin-top:12px;"></div>
-      <button class="btn btn-block" id="examNextBtn" onclick="examNext()" style="display:none;margin-top:12px;">Siguiente →</button>
     </div>
   </div>
-  <div id="examResults" style="display:none;"></div>
+  <div id="examenResultados" style="display:none;"></div>
 </div>
 
 <!-- RANDOM -->
@@ -315,11 +320,7 @@ let state = {
   levelCorrect: 0,
   levelAnswered: false,
 
-  examList: [],
-  examIdx: 0,
-  examCorrect: 0,
-  examLives: 3,
-  examResults: [],
+
 
   randomList: [],
   randomIdx: 0,
@@ -656,148 +657,274 @@ function finishLevel() {
   document.getElementById('scoreOverlay').classList.add('active');
 }
 
-// ========== EXAM ==========
-function startExam() {
-  state.examList    = shuffle([...especies]).slice(0, 20);
-  state.examIdx     = 0;
-  state.examCorrect = 0;
-  state.examLives   = 3;
-  state.examResults = [];
-  state.streak      = 0;
+// ========== EXAMEN FINAL (Visu UCO) ==========
+const EXAMEN_STORAGE_KEY = 'botanica_examen_historial';
 
-  document.getElementById('examResults').style.display = 'none';
-  document.getElementById('examArea').style.display    = 'block';
+let examen = {
+  plantas: [],
+  idx: 0,
+  aciertos: 0,
+  resultados: [],
+  tiempoRestante: 30,
+  timerInterval: null,
+  respondido: false,
+  fotoActual: null
+};
+
+function examenNormalizar(str) {
+  return str.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function examenIniciar() {
+  examen.plantas = shuffle([...especies]).slice(0, 10);
+  examen.idx = 0;
+  examen.aciertos = 0;
+  examen.resultados = [];
+  examen.respondido = false;
+
+  document.getElementById('examenResultados').style.display = 'none';
+  document.getElementById('examenResultados').innerHTML = '';
+  document.getElementById('examenArea').style.display = 'block';
+  document.getElementById('examenFeedback').style.display = 'none';
+  document.getElementById('examenFeedback').innerHTML = '';
 
   showScreen('screenExam');
-  showExamQuestion();
+  examenMostrarPregunta();
 }
 
-function showExamQuestion() {
-  if (state.examIdx >= state.examList.length || state.examLives <= 0) { finishExam(); return; }
-
-  const sp = state.examList[state.examIdx];
-  loadFoto(sp,
-    document.getElementById('examImage'),
-    document.getElementById('examPlaceholder')
-  );
-
-  document.getElementById('examFeedback').style.display = 'none';
-  document.getElementById('examNextBtn').style.display  = 'none';
-  document.getElementById('examProgress').textContent   = 'Pregunta ' + (state.examIdx + 1) + '/' + state.examList.length;
-
-  renderExamLives();
-
-  const correct   = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
-  const wrongPool = shuffle(especies.filter(e => e.id !== sp.id))
-                      .map(e => e.nombreCientifico + ' | ' + e.familia + ' | ' + e.grupo);
-  const options   = shuffle([correct, ...pickRandom(wrongPool, 3)]);
-
-  document.getElementById('examOptions').innerHTML = options.map(o =>
-    '<button class="option-btn" onclick="examAnswer(this, \'' + o.replace(/'/g, "\\'") + '\')">' + o + '</button>'
-  ).join('');
+function examenSalir() {
+  examenLimpiarTimer();
+  document.getElementById('examenFeedback').style.display = 'none';
+  document.getElementById('examenFeedback').innerHTML = '';
+  goHome();
 }
 
-function renderExamLives() {
-  let html = '';
-  for (let i = 0; i < 3; i++) {
-    html += '<span class="heart' + (i >= state.examLives ? ' lost' : '') + '">❤️</span>';
-  }
-  document.getElementById('examLives').innerHTML = html;
-}
-
-function examAnswer(btn, answer) {
-  const sp      = state.examList[state.examIdx];
-  const correct = sp.nombreCientifico + ' | ' + sp.familia + ' | ' + sp.grupo;
-  const isCorrect = answer === correct;
-
-  document.querySelectorAll('#examOptions .option-btn').forEach(b => {
-    b.disabled = true;
-    if (b.textContent === correct) b.classList.add('correct');
-    if (b === btn && !isCorrect)   b.classList.add('wrong');
-  });
-
-  const fb = document.getElementById('examFeedback');
-  fb.style.display = 'block';
-
-  if (isCorrect) {
-    state.examCorrect++;
-    state.streak++;
-    fb.innerHTML = '<p style="color:var(--green);font-weight:600;">✅ ¡Correcto!</p>';
-    showFlash(true);
-  } else {
-    state.examLives--;
-    state.streak = 0;
-    fb.innerHTML =
-      '<p style="color:var(--red);font-weight:600;">❌ Incorrecto</p>' +
-      '<p style="font-size:0.9rem;"><i>' + correct + '</i></p>' +
-      '<p style="font-size:0.85rem;color:var(--text-light);margin-top:4px;">' + sp.caracteristicasClave + '</p>';
-    showFlash(false);
-    renderExamLives();
-  }
-
-  state.examResults.push({ especie: sp, correct: isCorrect, respuestaUsuario: answer, respuestaCorrecta: correct });
-  updateHeaderStats();
-
-  document.getElementById('examNextBtn').textContent   =
-    (state.examLives <= 0 || state.examIdx >= state.examList.length - 1) ? 'Ver resultado' : 'Siguiente →';
-  document.getElementById('examNextBtn').style.display = 'block';
-}
-
-function examNext() {
-  state.examIdx++;
-  if (state.examIdx >= state.examList.length || state.examLives <= 0) finishExam();
-  else showExamQuestion();
-}
-
-function finishExam() {
-  const total    = state.examList.length;
-  const pct      = state.examResults.length > 0 ? Math.round(state.examCorrect / total * 100) : 0;
-  const note     = (state.examCorrect / 2).toFixed(1);
-
-  document.getElementById('scoreTitle').textContent = '📝 Resultado del Examen';
-  document.getElementById('scoreBig').textContent   = state.examCorrect + '/' + total;
-  document.getElementById('scoreDetail').innerHTML  =
-    'Nota: <strong>' + note + '/10</strong> &nbsp;|&nbsp; ' + pct + '% aciertos' +
-    (state.examLives <= 0 ? '<br><span style="color:var(--red);">❌ Te has quedado sin vidas</span>' : '');
-  document.getElementById('scoreActions').innerHTML =
-    '<button class="btn btn-block btn-green" onclick="startExam()">Repetir examen</button>' +
-    '<button class="btn btn-block btn-outline" onclick="reviewExam()">Repasar fallos</button>' +
-    '<button class="btn btn-block btn-outline" onclick="goHome()">Ir al inicio</button>';
-  document.getElementById('scoreOverlay').classList.add('active');
-
-  if (state.streak > state.recordStreak) {
-    state.recordStreak = state.streak;
-    saveFullState();
-  }
-}
-
-function reviewExam() {
-  document.getElementById('scoreOverlay').classList.remove('active');
-  document.getElementById('examArea').style.display    = 'none';
-  const resultsDiv = document.getElementById('examResults');
-  resultsDiv.style.display = 'block';
-
-  const wrong = state.examResults.filter(r => !r.correct);
-  if (wrong.length === 0) {
-    resultsDiv.innerHTML =
-      '<div class="card"><p style="text-align:center;">🎉 ¡Todos correctos! No hay nada que repasar.</p>' +
-      '<button class="btn btn-block btn-green" style="margin-top:12px;" onclick="goHome()">Volver al inicio</button></div>';
+function examenMostrarPregunta() {
+  if (examen.idx >= examen.plantas.length) {
+    examenFinalizar();
     return;
   }
 
-  resultsDiv.innerHTML =
-    '<h3>Repaso de fallos (' + wrong.length + ')</h3>' +
-    '<div class="results-list">' +
-    wrong.map(r => {
-      const sp = r.especie;
-      return '<div class="result-item wrong">' +
-        '<h4><i>' + sp.nombreCientifico + '</i></h4>' +
-        '<div class="detail">' + sp.familia + ' · ' + sp.grupo + '</div>' +
-        '<div class="detail" style="margin-top:4px;">' + sp.caracteristicasClave + '</div>' +
-        '</div>';
-    }).join('') +
-    '</div>' +
-    '<button class="btn btn-block btn-green" style="margin-top:12px;" onclick="goHome()">Volver al inicio</button>';
+  const sp = examen.plantas[examen.idx];
+  examen.respondido = false;
+
+  const fotos = sp.fotos;
+  const fotoIdx = fotos && fotos.length > 0 ? Math.floor(Math.random() * fotos.length) : -1;
+  examen.fotoActual = fotoIdx >= 0 ? fotos[fotoIdx] : null;
+
+  const img = document.getElementById('examenImage');
+  const ph = document.getElementById('examenPlaceholder');
+  img.style.display = 'none';
+  ph.style.display = 'block';
+  ph.textContent = 'Cargando imagen...';
+
+  if (examen.fotoActual) {
+    img.src = examen.fotoActual;
+    img.onload = function() { img.style.display = 'block'; ph.style.display = 'none'; };
+    img.onerror = function() { ph.textContent = '📷 (imagen no disponible)'; };
+  } else {
+    ph.textContent = '📷 (imagen no disponible)';
+  }
+
+  document.getElementById('examenProgreso').textContent = 'Planta ' + (examen.idx + 1) + '/10';
+
+  const input = document.getElementById('examenInput');
+  input.value = '';
+  input.disabled = false;
+  input.focus();
+
+  document.getElementById('examenBtn').disabled = false;
+
+  examenIniciarTimer();
+}
+
+function examenIniciarTimer() {
+  examenLimpiarTimer();
+  examen.tiempoRestante = 30;
+  examenActualizarTimer();
+
+  examen.timerInterval = setInterval(function() {
+    if (examen.respondido) return;
+    examen.tiempoRestante -= 0.1;
+    if (examen.tiempoRestante <= 0) {
+      examen.tiempoRestante = 0;
+      examenActualizarTimer();
+      examenTiempoAgotado();
+      return;
+    }
+    examenActualizarTimer();
+  }, 100);
+}
+
+function examenActualizarTimer() {
+  const segundos = Math.max(0, examen.tiempoRestante);
+  document.getElementById('examenTimerNum').textContent = Math.ceil(segundos) + 's';
+  const pct = (segundos / 30) * 100;
+  const fill = document.getElementById('examenTimerFill');
+  fill.style.width = pct + '%';
+  fill.className = 'examen-timer-fill' +
+    (segundos <= 5 ? ' danger' : segundos <= 10 ? ' warning' : '');
+}
+
+function examenLimpiarTimer() {
+  if (examen.timerInterval) {
+    clearInterval(examen.timerInterval);
+    examen.timerInterval = null;
+  }
+}
+
+function examenResponder() {
+  if (examen.respondido) return;
+  examen.respondido = true;
+  examenLimpiarTimer();
+
+  const input = document.getElementById('examenInput');
+  const respuesta = input.value;
+  input.disabled = true;
+  document.getElementById('examenBtn').disabled = true;
+
+  examenEvaluar(respuesta);
+}
+
+function examenTiempoAgotado() {
+  if (examen.respondido) return;
+  examen.respondido = true;
+  examenLimpiarTimer();
+
+  const input = document.getElementById('examenInput');
+  const respuesta = input.value;
+  input.disabled = true;
+  document.getElementById('examenBtn').disabled = true;
+
+  examenEvaluar(respuesta);
+}
+
+function examenEvaluar(respuesta) {
+  const sp = examen.plantas[examen.idx];
+  const correcta = sp.nombreCientifico;
+  const respNorm = examenNormalizar(respuesta || '');
+  const correctaNorm = examenNormalizar(correcta);
+  const acierto = respNorm === correctaNorm;
+
+  if (acierto) examen.aciertos++;
+
+  const tiempoUsado = Math.round(30 - Math.max(0, examen.tiempoRestante));
+
+  examen.resultados.push({
+    especieId: sp.id,
+    nombreCientifico: correcta,
+    respuestaUsuario: respuesta || '',
+    acierto: acierto,
+    tiempoUsado: tiempoUsado,
+    fotoMostrada: examen.fotoActual
+  });
+
+  showFlash(acierto);
+
+  var fb = document.getElementById('examenFeedback');
+  fb.style.display = 'block';
+  fb.innerHTML = acierto
+    ? '✅ <i style="color:var(--green);font-weight:600;">' + correcta + '</i>'
+    : '❌ <i style="color:var(--red);font-weight:600;">' + correcta + '</i>';
+
+  examen.idx++;
+  examenMostrarPregunta();
+}
+
+function examenFinalizar() {
+  examenLimpiarTimer();
+
+  const total = examen.resultados.length;
+  const pct = total > 0 ? Math.round((examen.aciertos / total) * 100) : 0;
+
+  const familias = {};
+  examen.resultados.forEach(function(r) {
+    const sp = especies.find(function(e) { return e.id === r.especieId; });
+    if (sp) {
+      if (!familias[sp.familia]) familias[sp.familia] = { total: 0, aciertos: 0 };
+      familias[sp.familia].total++;
+      if (r.acierto) familias[sp.familia].aciertos++;
+    }
+  });
+
+  const dominadas = Object.keys(familias).filter(function(f) {
+    return familias[f].aciertos === familias[f].total;
+  });
+
+  const problematicas = Object.keys(familias).filter(function(f) {
+    return familias[f].aciertos < familias[f].total;
+  });
+
+  const tiempoMedio = total > 0
+    ? (examen.resultados.reduce(function(s, r) { return s + r.tiempoUsado; }, 0) / total).toFixed(1)
+    : '0.0';
+
+  var historial = [];
+  try {
+    var raw = localStorage.getItem(EXAMEN_STORAGE_KEY);
+    historial = raw ? JSON.parse(raw) : [];
+  } catch (e) {}
+  historial.push({ fecha: Date.now(), puntuacion: examen.aciertos, total: total, porcentaje: pct });
+  try {
+    localStorage.setItem(EXAMEN_STORAGE_KEY, JSON.stringify(historial));
+  } catch (e) {}
+
+  var resultadosHtml = examen.resultados.map(function(r) {
+    var sp = especies.find(function(e) { return e.id === r.especieId; });
+    var icon = r.acierto ? '✅' : '❌';
+    var respCls = r.acierto ? 'ok' : 'ko';
+    var respText = r.acierto ? r.respuestaUsuario : (r.respuestaUsuario || '(vacío)');
+    return '<div class="examen-resultado-item ' + (r.acierto ? 'correcto' : 'incorrecto') + '">' +
+      '<div class="examen-resultado-foto">' +
+        '<img src="' + (r.fotoMostrada || '') + '" alt="" onerror="this.style.display=\'none\';this.parentElement.textContent=\'📷\'">' +
+      '</div>' +
+      '<div class="examen-resultado-info">' +
+        '<div class="examen-resultado-nombre"><i>' + r.nombreCientifico + '</i></div>' +
+        '<div class="examen-resultado-respuesta">Tu respuesta: <span class="' + respCls + '">' + respText + '</span></div>' +
+        (sp ? '<div class="examen-resultado-familia">' + sp.familia + ' · ' + sp.grupo + '</div>' : '') +
+        '<div class="examen-resultado-tiempo">' + r.tiempoUsado + 's</div>' +
+      '</div>' +
+      '<div class="examen-resultado-icono">' + icon + '</div>' +
+    '</div>';
+  }).join('');
+
+  var dominadasHtml = dominadas.length > 0
+    ? '<div class="examen-familia-sec"><h4>✅ Familias dominadas (100% aciertos)</h4>' +
+      dominadas.map(function(f) { return '<span class="examen-fam-chip good">' + f + '</span>'; }).join('') +
+      '</div>'
+    : '';
+
+  var problematicasHtml = problematicas.length > 0
+    ? '<div class="examen-familia-sec"><h4>❌ Familias problemáticas (con fallos)</h4>' +
+      problematicas.map(function(f) { return '<span class="examen-fam-chip bad">' + f + '</span>'; }).join('') +
+      '</div>'
+    : '';
+
+  document.getElementById('examenArea').style.display = 'none';
+  var resDiv = document.getElementById('examenResultados');
+  resDiv.style.display = 'block';
+  resDiv.innerHTML =
+    '<div class="card examen-reporte">' +
+      '<div class="examen-reporte-resumen">' +
+        '<div class="examen-reporte-nota">' + examen.aciertos + '/10</div>' +
+        '<div class="examen-reporte-pct">' + pct + '% aciertos</div>' +
+        '<div class="examen-reporte-tiempo">⏱ Tiempo medio: ' + tiempoMedio + 's</div>' +
+      '</div>' +
+      dominadasHtml +
+      problematicasHtml +
+      '<div class="examen-reporte-lista">' +
+        '<h4>Detalle por planta</h4>' +
+        resultadosHtml +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:var(--space-3);margin-top:var(--space-5);">' +
+        '<button class="btn btn-block btn-green" onclick="examenIniciar()">Repetir examen</button>' +
+        '<button class="btn btn-block btn-outline" onclick="examenSalir()">Ir al inicio</button>' +
+      '</div>' +
+    '</div>';
 }
 
 // ========== RANDOM ==========
@@ -914,6 +1041,18 @@ function showFlash(correct) {
 // ========== KEYBOARD SHORTCUTS ==========
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') goHome();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  var examInput = document.getElementById('examenInput');
+  if (examInput) {
+    examInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (!examen.respondido) examenResponder();
+      }
+    });
+  }
 });
 
 // ========== PWA ==========

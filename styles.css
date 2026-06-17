@@ -711,72 +711,6 @@ i, .italic { font-style: italic; }
 }
 
 /* ============================================================
-   EXAM
-   ============================================================ */
-.exam-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-4);
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.lives {
-  display: flex;
-  gap: 4px;
-}
-
-.heart {
-  font-size: 1.2rem;
-  transition: all var(--transition-fast);
-}
-
-.heart.lost {
-  opacity: 0.2;
-  filter: grayscale(1);
-}
-
-.results-list {
-  max-height: 400px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.result-item {
-  padding: var(--space-4);
-  border-radius: var(--radius);
-  margin-bottom: 0;
-  border-left: 4px solid var(--green);
-  background: var(--bg-card);
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow var(--transition);
-}
-
-.result-item:hover {
-  box-shadow: var(--shadow);
-}
-
-.result-item.wrong {
-  border-left-color: var(--red);
-  background: var(--red-bg);
-}
-
-.result-item h4 {
-  font-size: 0.88rem;
-  font-weight: 600;
-}
-
-.result-item .detail {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-top: 2px;
-}
-
-/* ============================================================
    RANDOM
    ============================================================ */
 .streak-display {
@@ -892,6 +826,223 @@ i, .italic { font-style: italic; }
 }
 
 /* ============================================================
+   EXAMEN FINAL (Visu UCO)
+   ============================================================ */
+.examen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  gap: var(--space-4);
+}
+
+.examen-timer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  max-width: 200px;
+}
+
+.examen-timer-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-muted);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.examen-timer-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: var(--radius-full);
+  transition: width 0.3s linear;
+}
+
+.examen-timer-fill.warning {
+  background: var(--gold);
+}
+
+.examen-timer-fill.danger {
+  background: var(--red);
+}
+
+.examen-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-family: var(--font);
+  background: var(--bg-card);
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.examen-input:focus {
+  border-color: var(--green);
+  box-shadow: var(--shadow-focus);
+}
+
+.examen-input::placeholder {
+  color: var(--text-muted);
+}
+
+.examen-input-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Report */
+.examen-reporte-resumen {
+  text-align: center;
+  margin-bottom: var(--space-5);
+}
+
+.examen-reporte-nota {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--green);
+  line-height: 1.2;
+}
+
+.examen-reporte-pct {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+}
+
+.examen-reporte-tiempo {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: var(--space-2);
+}
+
+.examen-familia-sec {
+  margin-bottom: var(--space-4);
+}
+
+.examen-familia-sec h4 {
+  font-size: 0.9rem;
+  margin-bottom: var(--space-2);
+}
+
+.examen-fam-chip {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin: 2px 3px;
+}
+
+.examen-fam-chip.good {
+  background: var(--green-bg);
+  color: var(--green-dark);
+}
+
+.examen-fam-chip.bad {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.examen-reporte-lista {
+  margin-top: var(--space-5);
+}
+
+.examen-reporte-lista h4 {
+  font-size: 0.9rem;
+  margin-bottom: var(--space-3);
+}
+
+.examen-resultado-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-2);
+  border: 1px solid var(--border-light);
+  transition: box-shadow var(--transition);
+}
+
+.examen-resultado-item:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.examen-resultado-item.correcto {
+  border-left: 4px solid var(--green);
+}
+
+.examen-resultado-item.incorrecto {
+  border-left: 4px solid var(--red);
+  background: var(--red-bg);
+}
+
+.examen-resultado-foto {
+  width: 60px;
+  height: 45px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-muted);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.examen-resultado-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.examen-resultado-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.examen-resultado-nombre {
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.examen-resultado-respuesta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.examen-resultado-respuesta .ok {
+  color: var(--green);
+  font-weight: 500;
+}
+
+.examen-resultado-respuesta .ko {
+  color: var(--red);
+  font-weight: 500;
+}
+
+.examen-resultado-familia {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.examen-resultado-tiempo {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.examen-resultado-icono {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+/* ============================================================
    FEEDBACK FLASH
    ============================================================ */
 .feedback-flash {
@@ -996,6 +1147,20 @@ i, .italic { font-style: italic; }
   }
   .screen {
     padding: var(--space-3);
+  }
+  .examen-input-row {
+    flex-direction: column;
+  }
+  .examen-input-row .btn {
+    width: 100%;
+  }
+  .examen-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  .examen-timer {
+    max-width: 100%;
   }
 }
 
